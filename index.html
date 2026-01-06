@@ -2,233 +2,232 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pantoja Tile | Master Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pantoja Tile | Master Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #6366f1; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #4ade80; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin:0; }
-        .container { max-width: 900px; margin: auto; }
-        .card { background: var(--card); padding: 25px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #334155; box-shadow: 0 10px 15px rgba(0,0,0,0.3); }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .full { grid-column: span 2; }
-        label { display: block; font-size: 11px; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; }
-        input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; outline: none; font-size: 15px; transition: 0.3s; }
-        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
-        textarea { height: 90px; resize: none; }
-        button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; transition: 0.3s; }
-        .btn-add { background: #22c55e; color: white; width: 100%; padding: 16px; margin-top: 15px; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-add:hover { background: #16a34a; transform: translateY(-2px); }
-        .btn-add:disabled { background: #475569; cursor: not-allowed; transform: none; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { text-align: left; color: #94a3b8; padding: 12px; border-bottom: 2px solid #334155; font-size: 12px; }
-        td { padding: 12px; border-bottom: 1px solid #334155; font-size: 14px; }
-        .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; }
-        .active { background: rgba(74, 222, 128, 0.1); color: #4ade80; }
-        .done { background: rgba(148, 163, 184, 0.1); color: #94a3b8; }
-        .btn-action { padding: 7px 11px; border-radius: 6px; font-size: 11px; color: white; margin-left: 4px; }
+        :root { --primary: #6366f1; --bg: #070b14; --card: rgba(30, 41, 59, 0.6); --text: #f8fafc; --accent: #22c55e; }
         
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 15px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* LOGO DIFUMINADO */
+        .bg-logo {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 70%; opacity: 0.05; filter: blur(8px); z-index: -1; pointer-events: none;
+        }
+
+        .container { max-width: 1000px; margin: auto; }
+
+        header { text-align: center; margin-bottom: 30px; }
+        .logo-main { width: 80px; filter: drop-shadow(0 0 15px var(--primary)); }
+
+        .section-title { 
+            font-weight: 800; font-size: 0.9rem; color: var(--primary); 
+            margin: 25px 0 15px; border-left: 4px solid var(--primary); 
+            padding-left: 12px; text-transform: uppercase; letter-spacing: 1px;
+        }
+        
+        /* CARD PRINCIPAL */
+        .card { 
+            background: var(--card); 
+            padding: 20px; border-radius: 20px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .full { grid-column: span 2; }
+
+        label { display: block; font-size: 10px; color: #94a3b8; margin-bottom: 6px; font-weight: bold; }
+        input, select, textarea { 
+            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #334155; 
+            background: rgba(15, 23, 42, 0.8); color: white; box-sizing: border-box; font-size: 16px; /* 16px evita zoom en iPhone */
+        }
+
+        /* BOTONES */
+        .btn { padding: 12px 18px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; }
+        .btn-save { background: var(--primary); color: white; width: 100%; margin-top: 20px; font-size: 16px; box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3); }
+        .btn-done { background: rgba(34, 197, 94, 0.15); color: var(--accent); border: 1px solid var(--accent); flex: 1; }
+        .btn-print { background: rgba(255, 255, 255, 0.05); color: white; border: 1px solid rgba(255,255,255,0.2); width: 50px; }
+
+        /* TABLA RESPONSIVA (MAGIA MOBILE) */
+        .table-container { background: var(--card); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: rgba(0,0,0,0.3); padding: 15px; text-align: left; font-size: 11px; color: #94a3b8; }
+        td { padding: 15px; border-top: 1px solid rgba(255,255,255,0.05); }
+
+        .badge-id { background: var(--primary); padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+
+        /* AJUSTES PARA CELULAR */
         @media (max-width: 600px) {
             .grid { grid-template-columns: 1fr; }
             .full { grid-column: span 1; }
+            
+            /* Ocultamos los encabezados de la tabla en mobile */
+            thead { display: none; }
+            
+            tr { 
+                display: block; padding: 15px; 
+                border-bottom: 1px solid rgba(255,255,255,0.1); 
+                position: relative;
+            }
+            
+            td { 
+                display: block; padding: 5px 0; border: none; 
+                text-align: left; font-size: 15px;
+            }
+
+            td:first-child { margin-bottom: 5px; }
+            
+            .actions-mobile { 
+                display: flex; gap: 10px; margin-top: 10px; 
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header style="text-align: center; padding: 20px 0;">
-        <h1 style="margin: 0; color: var(--primary);">PANTOJA TILE ADMIN</h1>
-        <p style="color: #64748b;">Gestión de Órdenes | Panel Central</p>
-    </header>
+    <img src="img/logo.png" class="bg-logo">
 
-    <div class="card">
-        <h2 style="margin-top:0;"><i class="fas fa-file-invoice" style="color: var(--primary); margin-right: 10px;"></i> Nueva PTR-Work Order</h2>
-        <div class="grid">
-            <div>
-                <label>ID Orden</label>
-                <input type="text" id="id" readonly style="color: var(--accent); font-weight: bold; background: #0f172a;">
-            </div>
+    <div class="container">
+        <header>
+            <img src="img/logo.png" class="logo-main">
+            <h2 style="margin:0; letter-spacing: 3px;">PANTOJA <span style="color:var(--primary)">TILE</span></h2>
+        </header>
 
-            <div>
-                <label>Seleccionar Cliente (Sheet1)</label>
-                <select id="selectCliente" onchange="autoFillCliente()">
-                    <option value="">Cargando lista de clientes...</option>
-                </select>
+        <div class="section-title">Nueva Orden</div>
+        <div class="card">
+            <div class="grid">
+                <div><label>ID</label><input type="text" id="id_orden" readonly></div>
+                <div><label>Presupuesto ($)</label><input type="number" id="presupuesto" placeholder="0.00"></div>
+                <div><label>Cliente</label><select id="select_cliente" onchange="autoFillCliente()"></select></div>
+                <div><label>Staff</label><select id="select_worker" onchange="autoFillWorker()"></select></div>
+                <div class="full"><label>Dirección</label><input type="text" id="direccion"></div>
+                <div class="full"><label>Notas</label><textarea id="notas_admin" rows="2"></textarea></div>
             </div>
-
-            <div>
-                <label>Asignar Trabajador (Users)</label>
-                <select id="selectWorker" onchange="autoFillWorker()">
-                    <option value="">Cargando lista de trabajadores...</option>
-                </select>
-            </div>
-
-            <div class="full">
-                <label>Dirección del Proyecto</label>
-                <input type="text" id="dir" placeholder="Escriba la dirección donde se realizará el trabajo">
-            </div>
-
-            <div class="full">
-                <label>Notas e Instrucciones para el Trabajador</label>
-                <textarea id="desc" placeholder="Detalles de materiales, áreas a cubrir, etc."></textarea>
-            </div>
+            <button class="btn btn-save" onclick="guardarOrden()"><i class="fas fa-plus"></i> REGISTRAR</button>
+            <input type="hidden" id="h_email_cliente"><input type="hidden" id="h_telefono_cliente">
+            <input type="hidden" id="h_servicio_cliente"><input type="hidden" id="h_email_worker">
         </div>
 
-        <input type="hidden" id="email_cliente">
-        <input type="hidden" id="telefono_cliente">
-        <input type="hidden" id="servicio_cliente">
-        <input type="hidden" id="email_worker">
-
-        <button class="btn-add" id="btnGuardar" onclick="crearOrden()">
-            <i class="fas fa-check-circle"></i> GUARDAR Y REGISTRAR EN EXCEL
-        </button>
-    </div>
-
-    <div class="card">
-        <h2 style="margin-top:0;"><i class="fas fa-history" style="color: var(--primary); margin-right: 10px;"></i> Historial de Órdenes</h2>
-        <div style="overflow-x: auto;">
+        <div class="section-title">Trabajos Activos</div>
+        <div class="table-container">
             <table>
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Cliente</th>
-                        <th>Trabajador</th>
-                        <th>Estatus</th>
-                        <th>Acción</th>
+                        <th>Asignado</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody id="cuerpoTabla">
-                    <tr><td colspan="5" style="text-align:center;">Iniciando sistema...</td></tr>
-                </tbody>
+                <tbody id="lista_trabajos">
+                    </tbody>
             </table>
         </div>
     </div>
-</div>
 
 <script>
-    // URL DE TU ÚLTIMO DESPLIEGUE (NEW DEPLOYMENT)
-    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwXPxuI1iLg6qqKD6lJa25st_zH0jn6_T8vOyss3Fs45ECAXQAZYc-pIhi3S8spOXw11Q/exec"; 
-    let globalDropdowns = {};
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycby-XYUTC1Bj14atA-g_ms727WXqWnyrKg0DdhmdzFdyrNDDmCNqghVGsYHkUO-BhYsfeQ/exec"; 
+    let globalData = {};
 
-    async function init() {
+    window.onload = async () => {
         try {
-            // 1. Cargar el ID PTRWO siguiente
             const resId = await fetch(`${URL_SCRIPT}?action=get_next_id`);
-            const nextId = await resId.text();
-            document.getElementById('id').value = nextId;
+            document.getElementById('id_orden').value = await resId.text();
+            const resData = await fetch(`${URL_SCRIPT}?action=get_dropdowns`);
+            globalData = await resData.json();
 
-            // 2. Cargar datos de Sheet1 y Users para los dropdowns
-            const resDrop = await fetch(`${URL_SCRIPT}?action=get_dropdowns`);
-            globalDropdowns = await resDrop.json();
+            document.getElementById('select_cliente').innerHTML = '<option value="">-- Cliente --</option>' + 
+                globalData.clients.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
 
-            // Llenar selector de Clientes
-            const selCli = document.getElementById('selectCliente');
-            selCli.innerHTML = '<option value="">-- Seleccione Cliente --</option>';
-            globalDropdowns.clients.forEach(c => {
-                selCli.innerHTML += `<option value="${c.name}">${c.name}</option>`;
-            });
-
-            // Llenar selector de Trabajadores
-            const selWork = document.getElementById('selectWorker');
-            selWork.innerHTML = '<option value="">-- Seleccione Trabajador --</option>';
-            globalDropdowns.users.forEach(u => {
-                selWork.innerHTML += `<option value="${u.name}">${u.name}</option>`;
-            });
+            document.getElementById('select_worker').innerHTML = '<option value="">-- Staff --</option>' + 
+                globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
 
             cargarTabla();
-        } catch(e) { 
-            console.error("Error cargando dropdowns:", e);
-            alert("Error al conectar con la base de datos.");
-        }
-    }
+        } catch(e) { console.log(e); }
+    };
 
-    // Al elegir cliente, se llenan los campos que irán al Excel
     function autoFillCliente() {
-        const nombre = document.getElementById('selectCliente').value;
-        const cli = globalDropdowns.clients.find(c => c.name === nombre);
-        if(cli) {
-            document.getElementById('email_cliente').value = cli.email || "";
-            document.getElementById('telefono_cliente').value = cli.phone || "";
-            document.getElementById('servicio_cliente').value = cli.service || "";
+        const c = globalData.clients.find(x => x.name === document.getElementById('select_cliente').value);
+        if(c) { 
+            document.getElementById('h_email_cliente').value = c.email; 
+            document.getElementById('h_telefono_cliente').value = c.phone; 
+            document.getElementById('h_servicio_cliente').value = c.service; 
         }
     }
 
-    // Al elegir trabajador, se llena su email de login automáticamente
     function autoFillWorker() {
-        const nombre = document.getElementById('selectWorker').value;
-        const user = globalDropdowns.users.find(u => u.name === nombre);
-        if(user) {
-            document.getElementById('email_worker').value = user.email || "";
-        }
+        const w = globalData.users.find(x => x.name === document.getElementById('select_worker').value);
+        if(w) document.getElementById('h_email_worker').value = w.email;
     }
 
     async function cargarTabla() {
-        try {
-            const res = await fetch(URL_SCRIPT);
-            const data = await res.json();
-            const cuerpo = document.getElementById('cuerpoTabla');
-            cuerpo.innerHTML = '';
-
-            if(data.length === 0) {
-                cuerpo.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay órdenes registradas.</td></tr>';
-                return;
-            }
-
-            data.forEach(o => {
-                cuerpo.innerHTML += `
-                    <tr>
-                        <td><b>${o.id}</b></td>
-                        <td>${o.nombre_cliente || 'N/A'}</td>
-                        <td>${o.asignado_a || 'N/A'}</td>
-                        <td><span class="badge ${o.estatus}">${o.estatus.toUpperCase()}</span></td>
-                        <td>
-                            <button class="btn-action" style="background:#3b82f6;" onclick="imprimir('${o.id}')"><i class="fas fa-print"></i></button>
-                        </td>
-                    </tr>`;
-            });
-        } catch(e) { console.error("Error tabla:", e); }
+        const res = await fetch(URL_SCRIPT);
+        const trabajos = await res.json();
+        const tbody = document.getElementById('lista_trabajos');
+        tbody.innerHTML = trabajos.filter(t => t.estatus === 'active').map(t => `
+            <tr>
+                <td><span class="badge-id">${t.id}</span> <span style="color:var(--accent); font-weight:bold; margin-left:10px;">$${t.presupuesto || '0'}</span></td>
+                <td><i class="fas fa-user" style="font-size:12px; color:var(--primary)"></i> <b>${t.nombre_cliente}</b><br><small>${t.servicio}</small></td>
+                <td><i class="fas fa-hard-hat" style="font-size:12px; color:var(--primary)"></i> ${t.asignado_a}</td>
+                <td>
+                    <div class="actions-mobile">
+                        <button class="btn btn-done" onclick="cambiarEstatus('${t.id}')"><i class="fas fa-check"></i> DONE</button>
+                        <button class="btn btn-print" onclick="imprimirReporte('${JSON.stringify(t).replace(/"/g, '&quot;')}')"><i class="fas fa-file-invoice"></i></button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
     }
 
-    async function crearOrden() {
-        const btn = document.getElementById('btnGuardar');
+    async function guardarOrden() {
+        const btn = document.querySelector('.btn-save');
+        btn.disabled = true; btn.innerHTML = "Guardando...";
         const payload = {
-            action: 'CREATE_ORDER',
-            id: document.getElementById('id').value,
-            cliente: document.getElementById('selectCliente').value,
-            email_cliente: document.getElementById('email_cliente').value,
-            telefono: document.getElementById('telefono_cliente').value,
-            servicio: document.getElementById('servicio_cliente').value,
-            direccion: document.getElementById('dir').value,
-            asignado_a: document.getElementById('selectWorker').value,
-            email_trabajador: document.getElementById('email_worker').value,
-            description_admin: document.getElementById('desc').value
+            action: 'CREATE_ORDER', id: document.getElementById('id_orden').value,
+            presupuesto: document.getElementById('presupuesto').value, cliente: document.getElementById('select_cliente').value,
+            email_cliente: document.getElementById('h_email_cliente').value, telefono: document.getElementById('h_telefono_cliente').value,
+            direccion: document.getElementById('direccion').value, servicio: document.getElementById('h_servicio_cliente').value,
+            description_admin: document.getElementById('notas_admin').value, asignado_a: document.getElementById('select_worker').value,
+            email_trabajador: document.getElementById('h_email_worker').value
         };
-
-        if(!payload.cliente || !payload.asignado_a || !payload.direccion) {
-            return alert("Por favor complete: Cliente, Trabajador y Dirección.");
-        }
-
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-
-        try {
-            await fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            alert("Orden registrada con éxito.");
-            location.reload(); 
-        } catch(e) {
-            alert("Error al guardar.");
-            btn.disabled = false;
-            btn.innerText = "GUARDAR Y REGISTRAR EN EXCEL";
-        }
+        await fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+        location.reload();
     }
 
-    function imprimir(id) {
-        alert("Generando vista previa para impresión del ID: " + id);
-        // Aquí puedes llamar a tu lógica de impresión anterior
+    async function cambiarEstatus(id) {
+        if(!confirm("¿Finalizar proyecto?")) return;
+        await fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'CHANGE_STATUS', id: id }) });
+        location.reload();
     }
 
-    window.onload = init;
+    async function imprimirReporte(dataRaw) {
+        const t = JSON.parse(dataRaw);
+        const res = await fetch(`${URL_SCRIPT}?action=get_total_hours&orderId=${t.id}`);
+        const horas = await res.text();
+        const win = window.open('', '', 'width=800,height=900');
+        win.document.write(`
+            <html><body style="font-family:sans-serif; padding:30px; text-align:center;">
+                <img src="img/logo.png" style="width:80px;">
+                <h2>PANTOJA TILE - REPORT</h2>
+                <hr>
+                <p align="left"><strong>ID:</strong> ${t.id}<br><strong>CLIENTE:</strong> ${t.nombre_cliente}<br><strong>DIRECCIÓN:</strong> ${t.direccion}</p>
+                <div style="background:#f0f0f0; padding:20px; border-radius:10px;">
+                    <h3>HORAS: ${horas} | VALOR: $${t.presupuesto}</h3>
+                </div>
+                <script>window.onload=()=>{window.print();window.close();}<\/script>
+            </body></html>
+        `);
+    }
 </script>
 </body>
 </html>
