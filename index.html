@@ -6,90 +6,38 @@
     <title>Pantoja Tile | Master Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #6366f1; --bg: #070b14; --card: rgba(30, 41, 59, 0.6); --text: #f8fafc; --accent: #22c55e; }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            margin: 0; 
-            padding: 15px;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        /* LOGO DIFUMINADO */
-        .bg-logo {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 70%; opacity: 0.05; filter: blur(8px); z-index: -1; pointer-events: none;
-        }
-
-        .container { max-width: 1000px; margin: auto; }
-
-        header { text-align: center; margin-bottom: 30px; }
-        .logo-main { width: 80px; filter: drop-shadow(0 0 15px var(--primary)); }
-
-        .section-title { 
-            font-weight: 800; font-size: 0.9rem; color: var(--primary); 
-            margin: 25px 0 15px; border-left: 4px solid var(--primary); 
-            padding-left: 12px; text-transform: uppercase; letter-spacing: 1px;
-        }
-        
-        /* CARD PRINCIPAL */
-        .card { 
-            background: var(--card); 
-            padding: 20px; border-radius: 20px; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            backdrop-filter: blur(12px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        }
-
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        :root { --primary: #6366f1; --bg: #070b14; --card: rgba(30, 41, 59, 0.6); --text: #f8fafc; --accent: #22c55e; --warning: #f59e0b; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
+        .bg-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; opacity: 0.05; filter: blur(8px); z-index: -1; }
+        .container { max-width: 1100px; margin: auto; }
+        header { text-align: center; margin-bottom: 20px; }
+        .logo-main { width: 60px; filter: drop-shadow(0 0 10px var(--primary)); }
+        .section-title { font-weight: 800; font-size: 0.85rem; color: var(--primary); margin: 20px 0 10px; border-left: 4px solid var(--primary); padding-left: 12px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
+        .card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(12px); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
         .full { grid-column: span 2; }
+        input, select, textarea { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #334155; background: rgba(15, 23, 42, 0.8); color: white; font-size: 14px; box-sizing: border-box; }
+        .table-container { background: var(--card); border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background: rgba(0,0,0,0.4); padding: 12px; text-align: left; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
+        td { padding: 15px; border-top: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
+        .staff-tag { background: rgba(99, 102, 241, 0.15); border: 1px solid var(--primary); padding: 4px 8px; border-radius: 6px; font-size: 12px; display: inline-block; margin: 2px; }
+        .hours-badge { color: var(--accent); font-weight: bold; font-size: 11px; }
+        .btn { padding: 8px 14px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; font-size: 12px; }
+        .btn-save { background: var(--primary); color: white; width: 100%; margin-top: 15px; font-size: 14px; }
+        .btn-add-worker { background: rgba(99, 102, 241, 0.1); color: var(--primary); border: 1px solid var(--primary); }
+        .btn-pay-global { background: var(--warning); color: #000; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+        .btn-done { background: rgba(34, 197, 94, 0.1); color: var(--accent); border: 1px solid var(--accent); }
+        .btn-print { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255,255,255,0.3); }
+        .actions-cell { display: flex; flex-wrap: wrap; gap: 8px; }
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:1000; align-items:center; justify-content:center; }
 
-        label { display: block; font-size: 10px; color: #94a3b8; margin-bottom: 6px; font-weight: bold; }
-        input, select, textarea { 
-            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #334155; 
-            background: rgba(15, 23, 42, 0.8); color: white; box-sizing: border-box; font-size: 16px; /* 16px evita zoom en iPhone */
-        }
-
-        /* BOTONES */
-        .btn { padding: 12px 18px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; }
-        .btn-save { background: var(--primary); color: white; width: 100%; margin-top: 20px; font-size: 16px; box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3); }
-        .btn-done { background: rgba(34, 197, 94, 0.15); color: var(--accent); border: 1px solid var(--accent); flex: 1; }
-        .btn-print { background: rgba(255, 255, 255, 0.05); color: white; border: 1px solid rgba(255,255,255,0.2); width: 50px; }
-
-        /* TABLA RESPONSIVA (MAGIA MOBILE) */
-        .table-container { background: var(--card); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: rgba(0,0,0,0.3); padding: 15px; text-align: left; font-size: 11px; color: #94a3b8; }
-        td { padding: 15px; border-top: 1px solid rgba(255,255,255,0.05); }
-
-        .badge-id { background: var(--primary); padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
-
-        /* AJUSTES PARA CELULAR */
         @media (max-width: 600px) {
-            .grid { grid-template-columns: 1fr; }
             .full { grid-column: span 1; }
-            
-            /* Ocultamos los encabezados de la tabla en mobile */
             thead { display: none; }
-            
-            tr { 
-                display: block; padding: 15px; 
-                border-bottom: 1px solid rgba(255,255,255,0.1); 
-                position: relative;
-            }
-            
-            td { 
-                display: block; padding: 5px 0; border: none; 
-                text-align: left; font-size: 15px;
-            }
-
-            td:first-child { margin-bottom: 5px; }
-            
-            .actions-mobile { 
-                display: flex; gap: 10px; margin-top: 10px; 
-            }
+            tr { display: block; margin-bottom: 15px; border-bottom: 2px solid var(--primary); }
+            td { display: block; padding: 8px; text-align: right; border: none; }
+            td::before { content: attr(data-label); float: left; color: #94a3b8; font-size: 11px; font-weight: bold; }
         }
     </style>
 </head>
@@ -100,65 +48,93 @@
     <div class="container">
         <header>
             <img src="img/logo.png" class="logo-main">
-            <h2 style="margin:0; letter-spacing: 3px;">PANTOJA <span style="color:var(--primary)">TILE</span></h2>
+            <h2 style="margin:0; letter-spacing: 2px;">PANTOJA <span style="color:var(--primary)">TILE</span></h2>
         </header>
 
-        <div class="section-title">Nueva Orden</div>
+        <div class="section-title">Registro de Orden</div>
         <div class="card">
             <div class="grid">
-                <div><label>ID</label><input type="text" id="id_orden" readonly></div>
-                <div><label>Presupuesto ($)</label><input type="number" id="presupuesto" placeholder="0.00"></div>
-                <div><label>Cliente</label><select id="select_cliente" onchange="autoFillCliente()"></select></div>
-                <div><label>Staff</label><select id="select_worker" onchange="autoFillWorker()"></select></div>
-                <div class="full"><label>Dirección</label><input type="text" id="direccion"></div>
-                <div class="full"><label>Notas</label><textarea id="notas_admin" rows="2"></textarea></div>
+                <div><label style="font-size: 10px; font-weight: bold;">ID ORDEN</label><input type="text" id="id_orden" readonly></div>
+                <div><label style="font-size: 10px; font-weight: bold;">PRESUPUESTO ($)</label><input type="number" id="presupuesto"></div>
+                <div><label style="font-size: 10px; font-weight: bold;">CLIENTE</label><select id="select_cliente" onchange="autoFillCliente()"></select></div>
+                <div><label style="font-size: 10px; font-weight: bold;">STAFF INICIAL</label><select id="select_worker" onchange="autoFillWorker()"></select></div>
+                <div class="full"><label style="font-size: 10px; font-weight: bold;">DIRECCIÓN</label><input type="text" id="direccion"></div>
+                <div class="full"><label style="font-size: 10px; font-weight: bold;">REQUERIMIENTOS DEL ADMIN</label><textarea id="notas_admin" rows="2"></textarea></div>
             </div>
-            <button class="btn btn-save" onclick="guardarOrden()"><i class="fas fa-plus"></i> REGISTRAR</button>
+            <button class="btn btn-save" onclick="guardarOrden()"><i class="fas fa-paper-plane"></i> CREAR PROYECTO</button>
             <input type="hidden" id="h_email_cliente"><input type="hidden" id="h_telefono_cliente">
             <input type="hidden" id="h_servicio_cliente"><input type="hidden" id="h_email_worker">
         </div>
 
-        <div class="section-title">Trabajos Activos</div>
+        <div class="section-title">
+            Panel de Control de Proyectos
+            <button class="btn btn-pay-global" onclick="abrirModalNominaGlobal()">
+                <i class="fas fa-file-invoice-dollar"></i> GENERAR NÓMINA SEMANAL
+            </button>
+        </div>
+        
         <div class="table-container">
             <table>
                 <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Cliente</th>
-                        <th>Asignado</th>
-                        <th>Acciones</th>
-                    </tr>
+                    <tr><th>Proyecto / Cliente</th><th>Equipo Asignado</th><th>Finanzas</th><th>Acciones</th></tr>
                 </thead>
                 <tbody id="lista_trabajos">
-                    </tbody>
+                    <tr><td colspan="4" style="text-align:center">Cargando datos...</td></tr>
+                </tbody>
             </table>
         </div>
     </div>
 
+    <div id="modalWorker" class="modal">
+        <div class="card" style="width:90%; max-width:400px; background:#1e293b; border:1px solid var(--primary); padding:30px;">
+            <h3 style="margin-top:0; color:var(--primary); text-align:center;">Asignar Staff Extra</h3>
+            <label style="font-size:11px; color:#94a3b8;">SELECCIONA AL TRABAJADOR:</label>
+            <select id="modal_select_worker" style="margin:15px 0;"></select>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-done" style="flex:1; justify-content:center;" onclick="confirmarNuevoStaff()">ASIGNAR</button>
+                <button class="btn" style="flex:1; background:#ef4444; color:white; justify-content:center;" onclick="cerrarModales()">CANCELAR</button>
+            </div>
+            <input type="hidden" id="modal_order_id">
+        </div>
+    </div>
+
+    <div id="modalSelectPay" class="modal">
+        <div class="card" style="width:90%; max-width:400px; background:#1e293b; border:1px solid var(--warning); padding:30px;">
+            <h3 style="margin-top:0; color:var(--warning); text-align:center;">Payroll Weekly</h3>
+            <label style="font-size:11px; color:#94a3b8;">SELECCIONA TRABAJADOR:</label>
+            <select id="pay_select_worker" style="margin:15px 0;"></select>
+            <label style="font-size:11px; color:#94a3b8;">PAGO POR HORA ($):</label>
+            <input type="number" id="pay_rate" value="25" style="margin-bottom:15px;">
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-pay-global" style="flex:1; justify-content:center;" onclick="ejecutarImpresionNomina()">IMPRIMIR</button>
+                <button class="btn" style="flex:1; background:#ef4444; color:white; justify-content:center;" onclick="cerrarModales()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
 <script>
-    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycby-XYUTC1Bj14atA-g_ms727WXqWnyrKg0DdhmdzFdyrNDDmCNqghVGsYHkUO-BhYsfeQ/exec"; 
-    let globalData = {};
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwOwyokZuIeYG_Y3CmMAPrJB-gOT5Msu8S2zOJoT8r35gv4wPFY0Yc0D6F573nmT8UK-Q/exec"; 
+    let globalData = { clients: [], users: [], rawJobs: [] };
 
     window.onload = async () => {
+        await cargarConfiguracion();
+        await cargarTabla();
+    };
+
+    async function cargarConfiguracion() {
         try {
             const resId = await fetch(`${URL_SCRIPT}?action=get_next_id`);
             document.getElementById('id_orden').value = await resId.text();
             const resData = await fetch(`${URL_SCRIPT}?action=get_dropdowns`);
-            globalData = await resData.json();
-
-            document.getElementById('select_cliente').innerHTML = '<option value="">-- Cliente --</option>' + 
-                globalData.clients.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-
-            document.getElementById('select_worker').innerHTML = '<option value="">-- Staff --</option>' + 
-                globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
-
-            cargarTabla();
-        } catch(e) { console.log(e); }
-    };
+            globalData = { ...globalData, ...(await resData.json()) };
+            document.getElementById('select_cliente').innerHTML = '<option value="">-- Seleccionar --</option>' + globalData.clients.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            document.getElementById('select_worker').innerHTML = '<option value="">-- Seleccionar --</option>' + globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
+        } catch(e) { console.error(e); }
+    }
 
     function autoFillCliente() {
         const c = globalData.clients.find(x => x.name === document.getElementById('select_cliente').value);
-        if(c) { 
+        if(c) {
             document.getElementById('h_email_cliente').value = c.email; 
             document.getElementById('h_telefono_cliente').value = c.phone; 
             document.getElementById('h_servicio_cliente').value = c.service; 
@@ -170,28 +146,177 @@
         if(w) document.getElementById('h_email_worker').value = w.email;
     }
 
+    function cerrarModales() {
+        document.getElementById('modalWorker').style.display = 'none';
+        document.getElementById('modalSelectPay').style.display = 'none';
+    }
+
     async function cargarTabla() {
         const res = await fetch(URL_SCRIPT);
         const trabajos = await res.json();
+        globalData.rawJobs = trabajos;
+        
+        const agrupados = trabajos.reduce((acc, current) => {
+            if (String(current.estatus).toLowerCase() !== 'active') return acc;
+            if (!acc[current.id]) {
+                acc[current.id] = { ...current, equipo: [] };
+            }
+            const existe = acc[current.id].equipo.find(e => e.nombre === current.asignado_a);
+            if(!existe) {
+                acc[current.id].equipo.push({ 
+                    nombre: current.asignado_a, 
+                    horas: current.horas_acumuladas,
+                    detalle: current.detalle_logs || []
+                });
+            }
+            return acc;
+        }, {});
+
         const tbody = document.getElementById('lista_trabajos');
-        tbody.innerHTML = trabajos.filter(t => t.estatus === 'active').map(t => `
+        tbody.innerHTML = Object.values(agrupados).map(t => `
             <tr>
-                <td><span class="badge-id">${t.id}</span> <span style="color:var(--accent); font-weight:bold; margin-left:10px;">$${t.presupuesto || '0'}</span></td>
-                <td><i class="fas fa-user" style="font-size:12px; color:var(--primary)"></i> <b>${t.nombre_cliente}</b><br><small>${t.servicio}</small></td>
-                <td><i class="fas fa-hard-hat" style="font-size:12px; color:var(--primary)"></i> ${t.asignado_a}</td>
-                <td>
-                    <div class="actions-mobile">
-                        <button class="btn btn-done" onclick="cambiarEstatus('${t.id}')"><i class="fas fa-check"></i> DONE</button>
-                        <button class="btn btn-print" onclick="imprimirReporte('${JSON.stringify(t).replace(/"/g, '&quot;')}')"><i class="fas fa-file-invoice"></i></button>
+                <td data-label="Proyecto">
+                    <span style="background:var(--primary); padding:2px 6px; border-radius:4px; font-size:10px; font-weight:800">#${t.id}</span><br>
+                    <b style="font-size:15px">${t.nombre_cliente}</b><br>
+                    <small style="color:#94a3b8">${t.servicio}</small>
+                </td>
+                <td data-label="Equipo">
+                    ${t.equipo.map(e => `<div class="staff-tag"><i class="fas fa-user-circle"></i> ${e.nombre} <span class="hours-badge">${e.horas}h</span></div>`).join('')}
+                    <button class="btn btn-add-worker" onclick="agregarStaff('${t.id}')"><i class="fas fa-plus"></i></button>
+                </td>
+                <td data-label="Finanzas"><b style="color:var(--accent)">$${t.presupuesto}</b></td>
+                <td data-label="Acciones">
+                    <div class="actions-cell">
+                        <button class="btn btn-done" onclick="cambiarEstatus('${t.id}')">DONE</button>
+                        <button class="btn btn-print" onclick="imprimirProyecto('${t.id}')"><i class="fas fa-print"></i> INFO</button>
                     </div>
                 </td>
             </tr>
         `).join('');
     }
 
+    function abrirModalNominaGlobal() {
+        let options = '<option value="ALL">-- TODOS LOS QUE TRABAJARON --</option>';
+        options += globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
+        document.getElementById('pay_select_worker').innerHTML = options;
+        document.getElementById('modalSelectPay').style.display = 'flex';
+    }
+
+    function ejecutarImpresionNomina() {
+        const selection = document.getElementById('pay_select_worker').value;
+        const rate = parseFloat(document.getElementById('pay_rate').value);
+        if(isNaN(rate)) return alert("Ingresa un pago válido");
+
+        let workersToPrint = [];
+
+        if (selection === "ALL") {
+            // Filtrar solo trabajadores que tengan horas > 0 en algún proyecto
+            globalData.users.forEach(u => {
+                let totalH = 0;
+                let logs = [];
+                globalData.rawJobs.forEach(job => {
+                    if(job.asignado_a === u.name) {
+                        totalH += parseFloat(job.horas_acumuladas);
+                        logs = logs.concat((job.detalle_logs || []).map(l => ({...l, idProyecto: job.id})));
+                    }
+                });
+                if(totalH > 0) workersToPrint.push({ name: u.name, totalH, logs });
+            });
+        } else {
+            let totalH = 0;
+            let logs = [];
+            globalData.rawJobs.forEach(job => {
+                if(job.asignado_a === selection) {
+                    totalH += parseFloat(job.horas_acumuladas);
+                    logs = logs.concat((job.detalle_logs || []).map(l => ({...l, idProyecto: job.id})));
+                }
+            });
+            if(totalH > 0) workersToPrint.push({ name: selection, totalH, logs });
+        }
+
+        if(workersToPrint.length === 0) return alert("No hay registros de horas para procesar.");
+        
+        imprimirLoteRecibos(workersToPrint, rate);
+        cerrarModales();
+    }
+
+    function imprimirLoteRecibos(lista, rate) {
+        const logoPath = "img/logo.png";
+        let win = window.open('', '_blank');
+        
+        let fullHtml = `<html><head><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+            <style>
+                body { font-family: 'Inter', sans-serif; padding:0; margin:0; color: #1e293b; }
+                .page { padding: 40px; page-break-after: always; min-height: 90vh; }
+                .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;}
+                .worker-card { border: 1px solid #e2e8f0; border-radius: 12px; padding:20px; background:#fff; }
+                table { width:100%; border-collapse:collapse; margin-top:10px; }
+                td, th { padding:8px; border-bottom:1px solid #f1f5f9; font-size:12px; }
+                th { color:#64748b; text-transform:uppercase; font-size:10px; text-align:left; }
+                .week-header { background:#f8fafc; font-weight:bold; }
+                .grand-total { background:#1e293b; color:white; font-size:18px; font-weight:bold; }
+                .sign-area { margin-top:50px; display:flex; justify-content:space-between; align-items:flex-end; }
+                .sign-line { text-align:center; width:200px; border-top:1px solid #000; font-size:10px; padding-top:5px; }
+            </style></head><body>`;
+
+        lista.forEach(w => {
+            // Agrupar por semana para este trabajador
+            const xSemana = w.logs.reduce((acc, l) => {
+                const s = l.semana || "N/A";
+                if(!acc[s]) acc[s] = { h:0, d:[] };
+                acc[s].h += parseFloat(l.horas);
+                acc[s].d.push(l);
+                return acc;
+            }, {});
+
+            fullHtml += `<div class="page">
+                <div class="header">
+                    <div><h1 style="margin:0; color:#6366f1;">PAYROLL CHECK STUB</h1><p style="margin:0; font-size:12px; color:#64748b;">Employee: ${w.name.toUpperCase()} | Rate: $${rate}/hr</p></div>
+                    <img src="${logoPath}" style="height:60px;">
+                </div>
+                <div class="worker-card">
+                    <table><thead><tr><th>Week</th><th>Date</th><th>Job</th><th>Notes</th><th style="text-align:right;">Hours</th></tr></thead><tbody>`;
+
+            Object.keys(xSemana).forEach(s => {
+                xSemana[s].d.forEach((d, idx) => {
+                    fullHtml += `<tr><td>${idx===0?`<b>Week ${s}</b>`:''}</td><td>${new Date(d.fecha).toLocaleDateString()}</td><td>#${d.idProyecto}</td><td>${d.notas||'-'}</td><td align="right">${d.horas}</td></tr>`;
+                });
+                fullHtml += `<tr class="week-header"><td colspan="4" align="right">Weekly Subtotal (W${s}):</td><td align="right">${xSemana[s].h.toFixed(2)}h</td></tr>`;
+            });
+
+            fullHtml += `<tr class="grand-total"><td colspan="4" align="right">TOTAL PAYOUT:</td><td align="right">$${(w.totalH * rate).toFixed(2)}</td></tr>
+            </tbody></table></div>
+            <div class="sign-area">
+                <div class="sign-line">Authorized Signature</div>
+                <div class="sign-line">Employee Signature: ${w.name}</div>
+            </div>
+            <p style="text-align:center; font-size:10px; color:#94a3b8; margin-top:30px;">Generated on ${new Date().toLocaleString()} - Pantoja Tile Administration</p>
+            </div>`;
+        });
+
+        fullHtml += `</body></html>`;
+        win.document.write(fullHtml);
+        win.document.close();
+        setTimeout(() => win.print(), 500);
+    }
+
+    function agregarStaff(orderId) {
+        document.getElementById('modal_order_id').value = orderId;
+        document.getElementById('modal_select_worker').innerHTML = globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
+        document.getElementById('modalWorker').style.display = 'flex';
+    }
+
+    async function confirmarNuevoStaff() {
+        const id = document.getElementById('modal_order_id').value;
+        const name = document.getElementById('modal_select_worker').value;
+        const w = globalData.users.find(u => u.name === name);
+        await fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'ADD_WORKER_TO_ORDER', id, asignado_a: name, email_trabajador: w.email }) });
+        location.reload();
+    }
+
     async function guardarOrden() {
         const btn = document.querySelector('.btn-save');
-        btn.disabled = true; btn.innerHTML = "Guardando...";
+        btn.disabled = true; btn.innerHTML = "PROCESANDO...";
         const payload = {
             action: 'CREATE_ORDER', id: document.getElementById('id_orden').value,
             presupuesto: document.getElementById('presupuesto').value, cliente: document.getElementById('select_cliente').value,
@@ -204,29 +329,21 @@
         location.reload();
     }
 
-    async function cambiarEstatus(id) {
-        if(!confirm("¿Finalizar proyecto?")) return;
-        await fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'CHANGE_STATUS', id: id }) });
-        location.reload();
+    function imprimirProyecto(orderId) {
+        const p = globalData.rawJobs.find(j => j.id == orderId);
+        if(!p) return;
+        const equipo = globalData.rawJobs.filter(j => j.id == orderId);
+        const logoPath = "img/logo.png";
+        let win = window.open('', '_blank');
+        win.document.write(`<html><head><title>Job Order #${orderId}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet"><style>body { font-family: 'Inter', sans-serif; padding:50px; color: #1e293b; line-height: 1.5; }.header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #6366f1; padding-bottom: 20px; margin-bottom: 30px; }.logo { height: 70px; }.title-area h1 { margin: 0; color: #6366f1; font-size: 28px; }.info-section { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }.info-card { background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; }.info-card h4 { margin: 0 0 5px; color: #6366f1; font-size: 11px; text-transform: uppercase; }table { width:100%; border-collapse:collapse; margin-top:20px; }th { background: #1e293b; color: white; padding: 12px; text-align: left; font-size: 12px; }td { border-bottom: 1px solid #e2e8f0; padding: 12px; font-size: 13px; }</style></head><body><div class="header"><div class="title-area"><h1>PANTOJA TILE</h1><p style="margin:0; font-size:12px; color:#64748b; font-weight:bold;">WORK ORDER REPORT</p></div><img src="${logoPath}" class="logo"></div><div style="display:flex; justify-content:space-between; margin-bottom:20px;"><h2 style="margin:0;">ORDER #${p.id}</h2><span style="color:#64748b">Date: ${new Date().toLocaleDateString()}</span></div><div class="info-section"><div class="info-card"><h4>Client Info</h4><strong>${p.nombre_cliente}</strong><br>${p.direccion}<br>${p.telefono}</div><div class="info-card"><h4>Project Info</h4><strong>Service:</strong> ${p.servicio}<br><strong>Budget:</strong> $${p.presupuesto}</div></div><div class="info-card"><h4>Admin Notes</h4>${p.notas_admin || 'N/A'}</div><table><thead><tr><th>Staff Name</th><th>Email</th><th>Total Hours</th></tr></thead><tbody>${equipo.map(e => `<tr><td>${e.asignado_a}</td><td>${e.email_trabajador}</td><td><strong>${e.horas_acumuladas}h</strong></td></tr>`).join('')}</tbody></table></body></html>`);
+        win.document.close();
+        setTimeout(() => win.print(), 500);
     }
 
-    async function imprimirReporte(dataRaw) {
-        const t = JSON.parse(dataRaw);
-        const res = await fetch(`${URL_SCRIPT}?action=get_total_hours&orderId=${t.id}`);
-        const horas = await res.text();
-        const win = window.open('', '', 'width=800,height=900');
-        win.document.write(`
-            <html><body style="font-family:sans-serif; padding:30px; text-align:center;">
-                <img src="img/logo.png" style="width:80px;">
-                <h2>PANTOJA TILE - REPORT</h2>
-                <hr>
-                <p align="left"><strong>ID:</strong> ${t.id}<br><strong>CLIENTE:</strong> ${t.nombre_cliente}<br><strong>DIRECCIÓN:</strong> ${t.direccion}</p>
-                <div style="background:#f0f0f0; padding:20px; border-radius:10px;">
-                    <h3>HORAS: ${horas} | VALOR: $${t.presupuesto}</h3>
-                </div>
-                <script>window.onload=()=>{window.print();window.close();}<\/script>
-            </body></html>
-        `);
+    async function cambiarEstatus(id) {
+        if(!confirm("¿Cerrar proyecto?")) return;
+        await fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'CHANGE_STATUS', id: id }) });
+        location.reload();
     }
 </script>
 </body>
