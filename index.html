@@ -5,76 +5,234 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pantoja Tile | Master Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #6366f1; --bg: #070b14; --card: rgba(30, 41, 59, 0.7); --text: #f8fafc; --accent: #22c55e; --warning: #f59e0b; --danger: #ef4444; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
-        .container { max-width: 1100px; margin: auto; }
-        header { text-align: center; margin-bottom: 20px; }
-        .section-title { font-weight: 800; font-size: 0.85rem; color: var(--primary); margin: 20px 0 10px; border-left: 4px solid var(--primary); padding-left: 12px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
-        .card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(12px); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-        .full { grid-column: span 2; }
-        input, select, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 14px; box-sizing: border-box; }
-        textarea { resize: none; height: 80px; }
-        .table-container { background: var(--card); border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); overflow-x: auto; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; min-width: 850px; }
-        th { background: rgba(0,0,0,0.4); padding: 12px; text-align: left; font-size: 11px; color: #94a3b8; }
-        td { padding: 15px; border-top: 1px solid rgba(255,255,255,0.05); }
-        .btn { padding: 10px 14px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; font-size: 12px; }
-        .btn-pay-global { background: var(--warning); color: #000; box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
-        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center; }
-        .pay-modal-content { width: 90%; max-width: 450px; background: #1e293b; border: 2px solid var(--warning); padding: 25px; border-radius: 25px; }
-        .search-box { position: relative; margin-bottom: 15px; }
-        .search-box input { padding-left: 45px; border: 1px solid var(--primary); }
-        .search-box i { position: absolute; left: 18px; top: 16px; color: var(--primary); }
-        .staff-tag { background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary); padding: 4px 8px; border-radius: 6px; font-size: 11px; margin-right: 5px; display: inline-block; margin-bottom: 5px; }
-        .budget-alert { color: var(--danger); font-weight: bold; font-size: 10px; display: block; margin-top: 4px; }
+        :root { 
+            --primary: #6366f1; 
+            --primary-dark: #4f46e5;
+            --bg: #070b14; 
+            --card: rgba(30, 41, 59, 0.7); 
+            --text: #f8fafc; 
+            --accent: #22c55e; 
+            --warning: #f59e0b; 
+            --danger: #ef4444;
+            --stop-blue: #00d2ff; 
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 10px;
+            background-image: radial-gradient(circle at top right, #1e1b4b, #070b14);
+            background-attachment: fixed;
+        }
+
+        .container { max-width: 1100px; margin: auto; padding-bottom: 50px; }
+
+        header { text-align: center; margin: 20px 0 30px; }
+        header h2 { font-size: 2rem; letter-spacing: 4px; font-weight: 800; }
+
+        .section-title { 
+            font-weight: 800; 
+            font-size: 0.75rem; 
+            color: var(--primary); 
+            margin: 25px 0 12px; 
+            border-left: 4px solid var(--primary); 
+            padding-left: 12px; 
+            text-transform: uppercase; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+
+        .card { 
+            background: var(--card); 
+            padding: 20px; 
+            border-radius: 24px; 
+            border: 1px solid rgba(255,255,255,0.08); 
+            backdrop-filter: blur(16px); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .grid { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 15px; 
+        }
+
+        @media (min-width: 600px) {
+            .grid { grid-template-columns: repeat(2, 1fr); }
+            .full { grid-column: span 2; }
+        }
+
+        input, select, textarea { 
+            width: 100%; 
+            padding: 14px; 
+            border-radius: 12px; 
+            border: 1px solid #334155; 
+            background: rgba(15, 23, 42, 0.8); 
+            color: white; 
+            font-size: 16px; 
+            transition: 0.3s;
+        }
+
+        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+        textarea { resize: none; height: 100px; }
+        label { font-size: 11px; font-weight: 600; color: #94a3b8; margin-bottom: 5px; display: block; }
+
+        .table-container { 
+            background: var(--card); 
+            border-radius: 20px; 
+            border: 1px solid rgba(255,255,255,0.08); 
+            overflow-x: auto; 
+            margin-top: 10px; 
+        }
+
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { background: rgba(0,0,0,0.3); padding: 15px; text-align: left; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
+        td { padding: 18px 15px; border-top: 1px solid rgba(255,255,255,0.05); }
+
+        .btn { 
+            padding: 12px 18px; 
+            border-radius: 12px; 
+            border: none; 
+            font-weight: 700; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px; 
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            font-size: 13px; 
+        }
+
+        .btn:active { transform: scale(0.95); }
+        .btn-save { background: var(--primary); color: white; width: 100%; justify-content: center; margin-top: 10px; font-size: 16px; padding: 16px; }
+        .btn-pay-global { background: var(--warning); color: #000; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); }
+        .btn-finish { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
+
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(5px); padding: 20px; }
+        .pay-modal-content { width: 100%; max-width: 450px; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); padding: 30px; border-radius: 28px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+
+        .search-box { position: relative; margin-bottom: 20px; }
+        .search-box input { padding-left: 50px; background: var(--card); border: 1px solid rgba(99, 102, 241, 0.3); }
+        .search-box i { position: absolute; left: 20px; top: 18px; color: var(--primary); font-size: 18px; }
+
+        /* --- ESTILOS GPS DINÁMICOS MEJORADOS --- */
+        .staff-tag { 
+            padding: 10px 14px; 
+            border-radius: 12px; 
+            font-size: 11px; 
+            margin: 5px 2px; 
+            display: inline-flex; 
+            flex-direction: column;
+            gap: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 2px solid transparent;
+            min-width: 140px;
+        }
+        .gps-cerca { background: rgba(34, 197, 94, 0.15); border-color: var(--accent); color: var(--accent); }
+        .gps-lejos { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); color: var(--danger); animation: pulse-gps-danger 2s infinite; }
+        .gps-offline { background: rgba(0, 210, 255, 0.1); border-color: var(--stop-blue); color: var(--stop-blue); }
+        
+        @keyframes pulse-gps-danger { 0% { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0); } }
+
+        .profit-badge { 
+            background: rgba(34, 197, 94, 0.1); 
+            color: var(--accent); 
+            padding: 4px 8px; 
+            border-radius: 6px; 
+            font-weight: 800; 
+            font-size: 12px; 
+            display: inline-block;
+            margin-top: 5px;
+        }
+        .budget-alert { 
+            background: var(--danger); 
+            color: white; 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-weight: 800; 
+            font-size: 9px; 
+            display: inline-block; 
+            margin-top: 5px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        
+        #timer-display { font-size: 10px; color: var(--primary); font-weight: 800; margin-left: 10px; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <header>
-            <h2 style="margin:0; letter-spacing: 2px;">PANTOJA <span style="color:var(--primary)">TILE</span></h2>
-            <p style="font-size: 10px; color: #94a3b8;">ADMINISTRACIÓN DE PROYECTOS Y NÓMINA</p>
+            <h2 style="margin:0;">PANTOJA <span style="color:var(--primary)">TILE</span></h2>
+            <p style="font-size: 11px; color: #94a3b8; font-weight: 600;">PORTAL DE ADMINISTRACIÓN MASTER <span id="timer-display"></span></p>
         </header>
 
         <div class="section-title">Nueva Orden de Trabajo</div>
         <div class="card">
             <div class="grid">
-                <div><label style="font-size:10px;">ID WO</label><input type="text" id="id_orden" readonly style="color:var(--warning); font-weight:bold;"></div>
-                <div><label style="font-size:10px;">PRESUPUESTO ($)</label><input type="number" id="presupuesto" placeholder="0.00"></div>
-                <div><label style="font-size:10px;">CLIENTE</label><select id="select_cliente" onchange="autoFillCliente()"></select></div>
-                <div><label style="font-size:10px;">STAFF INICIAL</label><select id="select_worker" onchange="autoFillWorker()"></select></div>
-                <div class="full"><input type="text" id="direccion" placeholder="Dirección del Proyecto"></div>
-                <div class="full"><textarea id="notas" placeholder="Describe aquí las instrucciones del proyecto..."></textarea></div>
+                <div>
+                    <label>ID WO</label>
+                    <input type="text" id="id_orden" readonly style="color:var(--warning); font-weight:800; background: rgba(0,0,0,0.3);">
+                </div>
+                <div>
+                    <label>PRESUPUESTO DEL PROYECTO ($)</label>
+                    <input type="number" id="presupuesto" placeholder="Ej: 2500.00">
+                </div>
+                <div>
+                    <label>CLIENTE</label>
+                    <select id="select_cliente" onchange="autoFillCliente()"></select>
+                </div>
+                <div>
+                    <label>STAFF INICIAL</label>
+                    <select id="select_worker" onchange="autoFillWorker()"></select>
+                </div>
+                <div class="full">
+                    <label>DIRECCIÓN</label>
+                    <input type="text" id="direccion" placeholder="Calle, Ciudad, Zip Code">
+                </div>
+                <div class="full">
+                    <label>NOTAS E INSTRUCCIONES</label>
+                    <textarea id="notas" placeholder="Detalles específicos para el staff..."></textarea>
+                </div>
             </div>
-            <button class="btn" style="background:var(--primary); color:white; width:100%; margin-top:15px; justify-content:center;" onclick="guardarOrden()">
-                <i class="fas fa-save"></i> GUARDAR PROYECTO
+            <button class="btn btn-save" onclick="guardarOrden()">
+                <i class="fas fa-rocket"></i> LANZAR PROYECTO
             </button>
-            <input type="hidden" id="h_email_cliente"><input type="hidden" id="h_telefono_cliente"><input type="hidden" id="h_servicio_cliente"><input type="hidden" id="h_email_worker">
+            <input type="hidden" id="h_email_cliente">
+            <input type="hidden" id="h_telefono_cliente">
+            <input type="hidden" id="h_servicio_cliente">
+            <input type="hidden" id="h_email_worker">
         </div>
 
         <div class="section-title">
-            Proyectos Activos
+            Proyectos en Curso
             <button class="btn btn-pay-global" onclick="abrirModalNominaGlobal()">
-                <i class="fas fa-file-invoice-dollar"></i> CORTAR NÓMINA
+                <i class="fas fa-dollar-sign"></i> CORTAR NÓMINA
             </button>
         </div>
 
         <div class="search-box">
             <i class="fas fa-search"></i>
-            <input type="text" id="busqueda" placeholder="Buscar por PTRWO, Cliente o Staff..." onkeyup="filtrarTabla()">
+            <input type="text" id="busqueda" placeholder="Filtrar por ID, Cliente o Trabajador..." onkeyup="filtrarTabla()">
         </div>
 
         <div class="table-container">
             <table>
                 <thead>
                     <tr>
-                        <th>ID / Proyecto</th>
-                        <th>Staff</th>
-                        <th>Presupuesto / Gasto</th>
-                        <th>Acciones</th>
+                        <th>Proyecto / Info</th>
+                        <th>Equipo (GPS Status)</th>
+                        <th>Rentabilidad</th>
+                        <th>Gestión</th>
                     </tr>
                 </thead>
                 <tbody id="lista_trabajos"></tbody>
@@ -83,128 +241,233 @@
     </div>
 
     <div id="modalAddWorker" class="modal">
-        <div class="pay-modal-content" style="border-color: var(--primary);">
-            <h3 style="margin:0 0 20px; color:var(--primary); text-align:center;">Asignar Refuerzo</h3>
+        <div class="pay-modal-content" style="border-top: 5px solid var(--primary);">
+            <h3 style="margin:0 0 10px; color:var(--primary);">Añadir Refuerzo</h3>
             <input type="hidden" id="add_worker_id">
             <div style="margin-bottom:20px;">
-                <label style="font-size:10px; color:#94a3b8;">SELECCIONAR TRABAJADOR EXTRA:</label>
+                <label>TRABAJADOR DISPONIBLE:</label>
                 <select id="select_extra_worker"></select>
             </div>
             <div style="display:flex; gap:10px;">
-                <button class="btn" style="flex:2; background:var(--primary); color:white; justify-content:center;" onclick="ejecutarAddWorker()">ASIGNAR</button>
-                <button class="btn" style="flex:1; background:var(--danger); color:white; justify-content:center;" onclick="cerrarModales()">CANCELAR</button>
+                <button class="btn" style="flex:2; background:var(--primary); color:white; justify-content:center;" onclick="ejecutarAddWorker()">ASIGNAR AHORA</button>
+                <button class="btn" style="flex:1; background:#334155; color:white; justify-content:center;" onclick="cerrarModales()">SALIR</button>
             </div>
         </div>
     </div>
 
     <div id="modalSelectPay" class="modal">
-        <div class="pay-modal-content">
-            <h3 style="margin:0 0 20px; color:var(--warning); text-align:center;">Generar Pagos</h3>
+        <div class="pay-modal-content" style="border-top: 5px solid var(--warning);">
+            <h3 style="margin:0 0 10px; color:var(--warning);">Corte de Nómina</h3>
             <div style="display:flex; gap:10px; margin-bottom:15px;">
                 <div style="flex:1">
-                    <label style="font-size:10px; color:#94a3b8;">DESDE:</label>
+                    <label>DESDE:</label>
                     <input type="date" id="pay_date_from">
                 </div>
                 <div style="flex:1">
-                    <label style="font-size:10px; color:#94a3b8;">HASTA:</label>
+                    <label>HASTA:</label>
                     <input type="date" id="pay_date_to">
                 </div>
             </div>
-            <div style="margin-bottom:20px;">
-                <label style="font-size:10px; color:#94a3b8;">TRABAJADOR:</label>
+            <div style="margin-bottom:25px;">
+                <label>FILTRAR PERSONAL:</label>
                 <select id="pay_select_worker"></select>
             </div>
             <div style="display:flex; gap:10px;">
-                <button class="btn btn-pay-global" style="flex:2; justify-content:center; padding:15px;" onclick="ejecutarImpresionNomina()">GENERAR Y ENVIAR</button>
-                <button class="btn" style="flex:1; background:var(--danger); color:white; justify-content:center;" onclick="cerrarModales()">CERRAR</button>
+                <button class="btn btn-pay-global" style="flex:2; justify-content:center; padding:18px;" onclick="ejecutarImpresionNomina()">GENERAR Y NOTIFICAR</button>
+                <button class="btn" style="flex:1; background:#334155; color:white; justify-content:center;" onclick="cerrarModales()">CANCELAR</button>
             </div>
         </div>
     </div>
 
 <script>
-    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwd85tbr5ooSlZhHA0gtMo_5u17yYv4TvgwtkL-baKUlGF3Qw0z5W9e5zNYryCjbVRB3A/exec"; 
+    // URL Mantenida
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbw9uk3xrH5qOArsvsbqF15ut2RUPYvx_GyGQTLr9Kmx6Pc5v22wl5SjhYahQ488P4Q_vg/exec"; 
     let globalData = { clients: [], users: [], rawJobs: [] };
+    let countdown = 15;
 
     window.onload = async () => {
         await cargarConfiguracion();
         await cargarTabla();
+        iniciarTemporizador();
     };
+
+    function iniciarTemporizador() {
+        setInterval(() => {
+            countdown--;
+            document.getElementById('timer-display').innerText = `| ACTUALIZANDO EN: ${countdown}s`;
+            if(countdown <= 0) {
+                cargarTabla();
+                countdown = 15;
+            }
+        }, 1000);
+    }
 
     async function cargarConfiguracion() {
         try {
             const resData = await fetch(`${URL_SCRIPT}?action=get_dropdowns`);
             globalData = { ...globalData, ...(await resData.json()) };
             const workersHTML = globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
-            document.getElementById('select_cliente').innerHTML = '<option value="">-- Cliente --</option>' + globalData.clients.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-            document.getElementById('select_worker').innerHTML = '<option value="">-- Staff --</option>' + workersHTML;
+            document.getElementById('select_cliente').innerHTML = '<option value="">-- Seleccionar Cliente --</option>' + globalData.clients.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            document.getElementById('select_worker').innerHTML = '<option value="">-- Seleccionar Staff --</option>' + workersHTML;
             document.getElementById('select_extra_worker').innerHTML = workersHTML;
         } catch(e) { console.error("Error cargando config:", e); }
     }
 
     async function cargarTabla() {
-        const res = await fetch(URL_SCRIPT);
-        const trabajos = await res.json();
-        globalData.rawJobs = trabajos;
+        try {
+            const res = await fetch(URL_SCRIPT);
+            const trabajos = await res.json();
+            globalData.rawJobs = trabajos;
 
-        let maxNum = 0;
-        trabajos.forEach(j => {
-            if(j.id && j.id.startsWith('PTRWO')) {
-                const num = parseInt(j.id.replace('PTRWO', ''));
-                if(!isNaN(num) && num > maxNum) maxNum = num;
-            }
-        });
-        document.getElementById('id_orden').value = "PTRWO" + (maxNum + 1);
+            let maxNum = 0;
+            trabajos.forEach(j => {
+                if(j.id && j.id.startsWith('PTRWO')) {
+                    const num = parseInt(j.id.replace('PTRWO', ''));
+                    if(!isNaN(num) && num > maxNum) maxNum = num;
+                }
+            });
+            document.getElementById('id_orden').value = "PTRWO" + (maxNum + 1);
 
-        const agrupados = trabajos.reduce((acc, curr) => {
-            if (String(curr.estatus).toLowerCase() !== 'active') return acc;
-            if (!acc[curr.id]) acc[curr.id] = { ...curr, equipo: [], gastoActual: 0 };
-            const worker = globalData.users.find(u => u.name === curr.asignado_a);
-            const rate = worker ? parseFloat(worker.rate) : 0;
-            acc[curr.id].gastoActual += (parseFloat(curr.horas_acumuladas) * rate);
-            acc[curr.id].equipo.push({ nombre: curr.asignado_a, horas: curr.horas_acumuladas });
-            return acc;
-        }, {});
+            const agrupados = trabajos.reduce((acc, curr) => {
+                if (String(curr.estatus).toLowerCase() !== 'active') return acc;
+                if (!acc[curr.id]) acc[curr.id] = { ...curr, equipo: [], gastoActual: 0 };
+                
+                const worker = globalData.users.find(u => u.name === curr.asignado_a);
+                const rate = worker ? parseFloat(worker.rate) : 0;
+                acc[curr.id].gastoActual += (parseFloat(curr.horas_acumuladas) * rate);
+                
+                // --- LÓGICA DE PRECISIÓN DE COLORES ---
+                let inVal = String(curr.estatus_gps_endrada || "").trim();
+                let outVal = String(curr.estatus_gps_salida || "").trim();
+                let addressRaw = String(curr.labor_log_address || "").trim(); 
+                
+                let estadoClase = "gps-offline"; // Default Azul (Clock Out)
+                let labelFinal = "OFF / CLOCK OUT";
 
-        renderTabla(Object.values(agrupados));
+                // REGLA: Si la salida (M) está vacía, están trabajando
+                if (outVal === "" || outVal === "null" || outVal === "S/D") {
+                    let match = inVal.match(/\(([^)]+)\)/);
+                    if (match) {
+                        let numStr = match[1].replace(/[^\d.]/g, '');
+                        let distancia = parseFloat(numStr);
+
+                        if (!isNaN(distancia)) {
+                            if (distancia > 0.1) { // Límite 0.1 como tenías
+                                estadoClase = "gps-lejos";
+                                labelFinal = "LEJOS (" + distancia + " mi)";
+                            } else {
+                                estadoClase = "gps-cerca";
+                                labelFinal = "TRABAJANDO (" + distancia + " mi)";
+                            }
+                        }
+                    } else if (inVal !== "" && inVal !== "S/D") {
+                        estadoClase = "gps-cerca";
+                        labelFinal = "EN SITIO";
+                    }
+                } else {
+                    estadoClase = "gps-offline"; // Azul brillante si ya salió
+                    labelFinal = "FINALIZADO (M)";
+                }
+
+                acc[curr.id].equipo.push({ 
+                    nombre: curr.asignado_a, 
+                    horas: curr.horas_acumuladas,
+                    gps: labelFinal,
+                    address: addressRaw,
+                    clase: estadoClase
+                });
+                return acc;
+            }, {});
+
+            renderTabla(Object.values(agrupados));
+        } catch(e) { console.error("Error en tabla:", e); }
     }
 
     function renderTabla(items) {
         document.getElementById('lista_trabajos').innerHTML = items.map(t => {
+            const profit = t.presupuesto - t.gastoActual;
             const ratio = (t.gastoActual / t.presupuesto) * 100;
+            
             return `
             <tr>
-                <td><b style="color:var(--primary)">${t.id}</b><br><b>${t.nombre_cliente}</b><br><small>${t.direccion}</small></td>
-                <td>${t.equipo.map(e => `<span class="staff-tag">${e.nombre} (${e.horas}h)</span>`).join('')}</td>
                 <td>
-                    <b style="color:var(--accent)">$${t.presupuesto}</b><br>
-                    <small>Gasto: $${t.gastoActual.toFixed(2)}</small>
-                    ${ratio > 85 ? '<span class="budget-alert">⚠️ GASTO ALTO</span>' : ''}
+                    <b style="color:var(--primary); font-size:14px;">${t.id}</b><br>
+                    <b style="font-size:13px;">${t.nombre_cliente}</b><br>
+                    <small style="color:#94a3b8; font-size:10px;"><i class="fas fa-map-marker-alt"></i> ${t.direccion}</small>
                 </td>
                 <td>
-                    <div style="display:flex; gap:5px;">
-                        <button class="btn" style="background:var(--primary); color:white;" title="Añadir Staff" onclick="abrirAddWorker('${t.id}')"><i class="fas fa-plus"></i></button>
-                        <button class="btn" style="background:rgba(255,255,255,0.1); color:white;" title="Ver Notas" onclick="alert('NOTAS COLUMNA I:\\n\\n${t.notas || 'Sin notas.'}')"><i class="fas fa-sticky-note"></i></button>
-                        <button class="btn" style="background:#25D366; color:white;" title="WhatsApp" onclick="whatsappReporte('${t.id}', '${t.nombre_cliente}', '${t.gastoActual.toFixed(2)}')"><i class="fab fa-whatsapp"></i></button>
+                    ${t.equipo.map(e => `
+                        <div class="staff-tag ${e.clase}" 
+                             onclick="verMapaEntrada('${e.address}', '${e.nombre}', '${t.id}')">
+                            <span><i class="fas ${e.clase === 'gps-lejos' ? 'fa-exclamation-triangle' : (e.clase === 'gps-cerca' ? 'fa-check-circle' : 'fa-power-off')}"></i> ${e.nombre}</span>
+                            <small>${e.horas} hrs | ${e.gps}</small>
+                        </div>`).join('')}
+                </td>
+                <td>
+                    <small style="color:#94a3b8">Budget: $${t.presupuesto}</small><br>
+                    <span class="profit-badge">Profit: $${profit.toFixed(2)}</span>
+                    ${ratio > 85 ? '<br><span class="budget-alert">⚠️ OVER BUDGET</span>' : ''}
+                </td>
+                <td>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn" style="background:var(--primary); color:white;" onclick="abrirAddWorker('${t.id}')"><i class="fas fa-user-plus"></i></button>
+                        <button class="btn btn-finish" title="Finalizar" onclick="finalizarProyecto('${t.id}')"><i class="fas fa-check-double"></i></button>
+                        <button class="btn" style="background:#25D366; color:white;" onclick="whatsappReporte('${t.id}', '${t.nombre_cliente}', '${t.gastoActual.toFixed(2)}')"><i class="fab fa-whatsapp"></i></button>
                     </div>
                 </td>
             </tr>`;
         }).join('');
     }
 
+    function verMapaEntrada(direccionTrabajador, nombreTrabajador, idProyecto) {
+        // 1. Buscamos la dirección del PROYECTO (el destino)
+        const proyecto = globalData.rawJobs.find(j => j.id === idProyecto);
+        const direccionDestino = proyecto ? proyecto.direccion : "";
+
+        if(!direccionTrabajador || direccionTrabajador === "" || direccionTrabajador === "null") {
+            alert("No hay ubicación GPS para " + nombreTrabajador);
+            return;
+        }
+
+        if(!direccionDestino) {
+            // Si el proyecto no tiene dirección, solo mostramos dónde está el trabajador
+            let urlSimple = direccionTrabajador.startsWith("http") ? direccionTrabajador : "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(direccionTrabajador);
+            window.open(urlSimple, '_blank');
+            return;
+        }
+
+        // 2. CREAMOS EL LINK DE RUTA (DIRECTIONS)
+        // Origen: Donde marcó el trabajador (Columna J)
+        // Destino: Donde es la obra (Columna que llenaste al crear la orden)
+        const urlRuta = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(direccionTrabajador)}&destination=${encodeURIComponent(direccionDestino)}&travelmode=driving`;
+        
+        window.open(urlRuta, '_blank');
+    }
+
     async function guardarOrden() {
+        const pres = document.getElementById('presupuesto').value;
+        const cli = document.getElementById('select_cliente').value;
+        if(!pres || !cli) return alert("¡Ey! Falta el presupuesto o el cliente.");
+
         const payload = { 
             action: 'CREATE_ORDER', 
             id: document.getElementById('id_orden').value, 
-            presupuesto: document.getElementById('presupuesto').value, 
-            cliente: document.getElementById('select_cliente').value, 
+            presupuesto: pres, 
+            cliente: cli, 
             email_cliente: document.getElementById('h_email_cliente').value, 
             telefono: document.getElementById('h_telefono_cliente').value, 
             direccion: document.getElementById('direccion').value, 
             servicio: document.getElementById('h_servicio_cliente').value, 
             asignado_a: document.getElementById('select_worker').value, 
             email_trabajador: document.getElementById('h_email_worker').value, 
-            notas: document.getElementById('notas').value // ESTO VA A COLUMNA I
+            notas: document.getElementById('notas').value,
+            estatus: 'ACTIVE'
         };
+        
+        const btn = document.querySelector('.btn-save');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> GUARDANDO...';
+        btn.style.opacity = '0.5';
+
         await fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
         location.reload();
     }
@@ -223,7 +486,8 @@
         const payload = { 
             action: 'CREATE_ORDER', id: id, presupuesto: job.presupuesto, cliente: job.nombre_cliente, 
             email_cliente: job.email_cliente, telefono: job.telefono, direccion: job.direccion, 
-            servicio: job.servicio, asignado_a: workerName, email_trabajador: worker.email, notas: job.notas 
+            servicio: job.servicio, asignado_a: workerName, email_trabajador: worker.email, notas: job.notas,
+            estatus: 'ACTIVE'
         };
         await fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
         location.reload();
@@ -236,7 +500,7 @@
     }
 
     function whatsappReporte(id, cliente, gasto) {
-        const msg = encodeURIComponent(`Pantoja Tile Reporte:\nID: ${id}\nCliente: ${cliente}\nGasto en nómina: $${gasto}`);
+        const msg = encodeURIComponent(`*PANTOJA TILE - REPORTE*\n\n✅ *Proyecto:* ${id}\n👤 *Cliente:* ${cliente}\n💸 *Gasto Labor:* $${gasto}\n\n_Reporte generado automáticamente._`);
         window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
 
@@ -284,15 +548,17 @@
             const r = procesar(u); if(r.totalH > 0) workersToPrint.push(r);
         }
 
-        if(workersToPrint.length === 0) return alert("Sin datos.");
+        if(workersToPrint.length === 0) return alert("No hay horas registradas en este periodo.");
         imprimirElegante(workersToPrint, from.toLocaleDateString(), to.toLocaleDateString());
 
         setTimeout(() => {
-            if(confirm("¿Enviar los avisos de pago por WhatsApp?")) {
+            if(confirm("¿Enviar los avisos de pago por WhatsApp ahora mismo?")) {
                 workersToPrint.forEach(w => {
-                    const neto = (w.totalH * w.rate).toFixed(2);
-                    const msg = encodeURIComponent(`*PANTOJA TILE*\nHola *${w.name}*, tu pago de *$${neto}* está listo.\nPeriodo: ${from.toLocaleDateString()} - ${to.toLocaleDateString()}.\nAdjunto recibo.`);
-                    window.open(`https://wa.me/${w.phone}?text=${msg}`, '_blank');
+                    if(w.phone) {
+                        const neto = (w.totalH * w.rate).toFixed(2);
+                        const msg = encodeURIComponent(`*PANTOJA TILE PAYROLL*\n\nHola *${w.name}*,\nTu pago por *$${neto}* ha sido procesado.\n\n📅 *Periodo:* ${from.toLocaleDateString()} - ${to.toLocaleDateString()}\n⏱ *Total horas:* ${w.totalH}h\n\n_Tu recibo detallado ha sido enviado por correo._`);
+                        window.open(`https://wa.me/${w.phone}?text=${msg}`, '_blank');
+                    }
                 });
             }
         }, 1500);
@@ -307,7 +573,6 @@
             body { font-family: 'Inter', sans-serif; color: #1e293b; margin:0; padding:0; background: #fff; }
             .page { padding: 40px; page-break-after: always; box-sizing: border-box; width: 100%; border-bottom: 2px solid #f1f5f9; }
             .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-            .logo { height: 70px; }
             .emp-card { background: #f1f5f9; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid #6366f1; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
             th { text-align: left; padding: 10px; background: #1e293b; color: white; font-size: 10px; }
@@ -320,7 +585,7 @@
         lista.forEach(w => {
             html += `<div class="page">
                 <div class="header">
-                    <img src="img/logo.png" class="logo" onerror="this.src='https://via.placeholder.com/150x70?text=PANTOJA+TILE'">
+                    <h2 style="margin:0;">PANTOJA TILE</h2>
                     <div style="text-align:right; font-size:11px;"><b>PAYROLL STUB</b><br>${f1} - ${f2}</div>
                 </div>
                 <div class="emp-card"><small>Trabajador:</small><h2 style="margin:0;">${w.name}</h2></div>
@@ -344,6 +609,7 @@
             document.getElementById('h_email_cliente').value = c.email; 
             document.getElementById('h_telefono_cliente').value = c.phone; 
             document.getElementById('h_servicio_cliente').value = c.service; 
+            document.getElementById('direccion').value = c.address || "";
         }
     }
 
