@@ -6,114 +6,123 @@
     <title>Pantoja Tile | Master Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #6366f1; --bg: #070b14; --card: rgba(30, 41, 59, 0.6); --text: #f8fafc; --accent: #22c55e; --warning: #f59e0b; }
+        :root { --primary: #6366f1; --bg: #070b14; --card: rgba(30, 41, 59, 0.7); --text: #f8fafc; --accent: #22c55e; --warning: #f59e0b; --danger: #ef4444; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
-        .bg-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; opacity: 0.05; filter: blur(8px); z-index: -1; }
         .container { max-width: 1100px; margin: auto; }
         header { text-align: center; margin-bottom: 20px; }
-        .logo-main { width: 60px; filter: drop-shadow(0 0 10px var(--primary)); }
         .section-title { font-weight: 800; font-size: 0.85rem; color: var(--primary); margin: 20px 0 10px; border-left: 4px solid var(--primary); padding-left: 12px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
         .card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(12px); }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
         .full { grid-column: span 2; }
-        input, select, textarea { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #334155; background: rgba(15, 23, 42, 0.8); color: white; font-size: 14px; box-sizing: border-box; }
-        .table-container { background: var(--card); border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th { background: rgba(0,0,0,0.4); padding: 12px; text-align: left; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
-        td { padding: 15px; border-top: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
-        .staff-tag { background: rgba(99, 102, 241, 0.15); border: 1px solid var(--primary); padding: 4px 8px; border-radius: 6px; font-size: 12px; display: inline-block; margin: 2px; }
-        .hours-badge { color: var(--accent); font-weight: bold; font-size: 11px; }
-        .btn { padding: 8px 14px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; font-size: 12px; }
-        .btn-save { background: var(--primary); color: white; width: 100%; margin-top: 15px; font-size: 14px; }
-        .btn-add-worker { background: rgba(99, 102, 241, 0.1); color: var(--primary); border: 1px solid var(--primary); }
-        .btn-pay-global { background: var(--warning); color: #000; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
-        .btn-done { background: rgba(34, 197, 94, 0.1); color: var(--accent); border: 1px solid var(--accent); }
-        .btn-print { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255,255,255,0.3); }
-        .actions-cell { display: flex; flex-wrap: wrap; gap: 8px; }
-        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:1000; align-items:center; justify-content:center; }
-
-        @media (max-width: 600px) {
-            .full { grid-column: span 1; }
-            thead { display: none; }
-            tr { display: block; margin-bottom: 15px; border-bottom: 2px solid var(--primary); }
-            td { display: block; padding: 8px; text-align: right; border: none; }
-            td::before { content: attr(data-label); float: left; color: #94a3b8; font-size: 11px; font-weight: bold; }
-        }
+        input, select, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 14px; box-sizing: border-box; }
+        textarea { resize: none; height: 80px; }
+        .table-container { background: var(--card); border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); overflow-x: auto; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; min-width: 850px; }
+        th { background: rgba(0,0,0,0.4); padding: 12px; text-align: left; font-size: 11px; color: #94a3b8; }
+        td { padding: 15px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .btn { padding: 10px 14px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; font-size: 12px; }
+        .btn-pay-global { background: var(--warning); color: #000; box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center; }
+        .pay-modal-content { width: 90%; max-width: 450px; background: #1e293b; border: 2px solid var(--warning); padding: 25px; border-radius: 25px; }
+        .search-box { position: relative; margin-bottom: 15px; }
+        .search-box input { padding-left: 45px; border: 1px solid var(--primary); }
+        .search-box i { position: absolute; left: 18px; top: 16px; color: var(--primary); }
+        .staff-tag { background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary); padding: 4px 8px; border-radius: 6px; font-size: 11px; margin-right: 5px; display: inline-block; margin-bottom: 5px; }
+        .budget-alert { color: var(--danger); font-weight: bold; font-size: 10px; display: block; margin-top: 4px; }
     </style>
 </head>
 <body>
 
-    <img src="img/logo.png" class="bg-logo">
-
     <div class="container">
         <header>
-            <img src="img/logo.png" class="logo-main">
             <h2 style="margin:0; letter-spacing: 2px;">PANTOJA <span style="color:var(--primary)">TILE</span></h2>
+            <p style="font-size: 10px; color: #94a3b8;">ADMINISTRACIÓN DE PROYECTOS Y NÓMINA</p>
         </header>
 
-        <div class="section-title">Registro de Orden</div>
+        <div class="section-title">Nueva Orden de Trabajo</div>
         <div class="card">
             <div class="grid">
-                <div><label style="font-size: 10px; font-weight: bold;">ID ORDEN</label><input type="text" id="id_orden" readonly></div>
-                <div><label style="font-size: 10px; font-weight: bold;">PRESUPUESTO ($)</label><input type="number" id="presupuesto"></div>
-                <div><label style="font-size: 10px; font-weight: bold;">CLIENTE</label><select id="select_cliente" onchange="autoFillCliente()"></select></div>
-                <div><label style="font-size: 10px; font-weight: bold;">STAFF INICIAL</label><select id="select_worker" onchange="autoFillWorker()"></select></div>
-                <div class="full"><label style="font-size: 10px; font-weight: bold;">DIRECCIÓN</label><input type="text" id="direccion"></div>
-                <div class="full"><label style="font-size: 10px; font-weight: bold;">REQUERIMIENTOS DEL ADMIN</label><textarea id="notas_admin" rows="2"></textarea></div>
+                <div><label style="font-size:10px;">ID WO</label><input type="text" id="id_orden" readonly style="color:var(--warning); font-weight:bold;"></div>
+                <div><label style="font-size:10px;">PRESUPUESTO ($)</label><input type="number" id="presupuesto" placeholder="0.00"></div>
+                <div><label style="font-size:10px;">CLIENTE</label><select id="select_cliente" onchange="autoFillCliente()"></select></div>
+                <div><label style="font-size:10px;">STAFF INICIAL</label><select id="select_worker" onchange="autoFillWorker()"></select></div>
+                <div class="full"><input type="text" id="direccion" placeholder="Dirección del Proyecto"></div>
+                <div class="full"><textarea id="notas" placeholder="Describe aquí las instrucciones del proyecto..."></textarea></div>
             </div>
-            <button class="btn btn-save" onclick="guardarOrden()"><i class="fas fa-paper-plane"></i> CREAR PROYECTO</button>
-            <input type="hidden" id="h_email_cliente"><input type="hidden" id="h_telefono_cliente">
-            <input type="hidden" id="h_servicio_cliente"><input type="hidden" id="h_email_worker">
+            <button class="btn" style="background:var(--primary); color:white; width:100%; margin-top:15px; justify-content:center;" onclick="guardarOrden()">
+                <i class="fas fa-save"></i> GUARDAR PROYECTO
+            </button>
+            <input type="hidden" id="h_email_cliente"><input type="hidden" id="h_telefono_cliente"><input type="hidden" id="h_servicio_cliente"><input type="hidden" id="h_email_worker">
         </div>
 
         <div class="section-title">
-            Panel de Control de Proyectos
+            Proyectos Activos
             <button class="btn btn-pay-global" onclick="abrirModalNominaGlobal()">
-                <i class="fas fa-file-invoice-dollar"></i> GENERAR NÓMINA SEMANAL
+                <i class="fas fa-file-invoice-dollar"></i> CORTAR NÓMINA
             </button>
         </div>
-        
+
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="busqueda" placeholder="Buscar por PTRWO, Cliente o Staff..." onkeyup="filtrarTabla()">
+        </div>
+
         <div class="table-container">
             <table>
                 <thead>
-                    <tr><th>Proyecto / Cliente</th><th>Equipo Asignado</th><th>Finanzas</th><th>Acciones</th></tr>
+                    <tr>
+                        <th>ID / Proyecto</th>
+                        <th>Staff</th>
+                        <th>Presupuesto / Gasto</th>
+                        <th>Acciones</th>
+                    </tr>
                 </thead>
-                <tbody id="lista_trabajos">
-                    <tr><td colspan="4" style="text-align:center">Cargando datos...</td></tr>
-                </tbody>
+                <tbody id="lista_trabajos"></tbody>
             </table>
         </div>
     </div>
 
-    <div id="modalWorker" class="modal">
-        <div class="card" style="width:90%; max-width:400px; background:#1e293b; border:1px solid var(--primary); padding:30px;">
-            <h3 style="margin-top:0; color:var(--primary); text-align:center;">Asignar Staff Extra</h3>
-            <label style="font-size:11px; color:#94a3b8;">SELECCIONA AL TRABAJADOR:</label>
-            <select id="modal_select_worker" style="margin:15px 0;"></select>
-            <div style="display:flex; gap:10px;">
-                <button class="btn btn-done" style="flex:1; justify-content:center;" onclick="confirmarNuevoStaff()">ASIGNAR</button>
-                <button class="btn" style="flex:1; background:#ef4444; color:white; justify-content:center;" onclick="cerrarModales()">CANCELAR</button>
+    <div id="modalAddWorker" class="modal">
+        <div class="pay-modal-content" style="border-color: var(--primary);">
+            <h3 style="margin:0 0 20px; color:var(--primary); text-align:center;">Asignar Refuerzo</h3>
+            <input type="hidden" id="add_worker_id">
+            <div style="margin-bottom:20px;">
+                <label style="font-size:10px; color:#94a3b8;">SELECCIONAR TRABAJADOR EXTRA:</label>
+                <select id="select_extra_worker"></select>
             </div>
-            <input type="hidden" id="modal_order_id">
+            <div style="display:flex; gap:10px;">
+                <button class="btn" style="flex:2; background:var(--primary); color:white; justify-content:center;" onclick="ejecutarAddWorker()">ASIGNAR</button>
+                <button class="btn" style="flex:1; background:var(--danger); color:white; justify-content:center;" onclick="cerrarModales()">CANCELAR</button>
+            </div>
         </div>
     </div>
 
     <div id="modalSelectPay" class="modal">
-        <div class="card" style="width:90%; max-width:400px; background:#1e293b; border:1px solid var(--warning); padding:30px;">
-            <h3 style="margin-top:0; color:var(--warning); text-align:center;">Payroll Weekly</h3>
-            <label style="font-size:11px; color:#94a3b8;">SELECCIONA TRABAJADOR:</label>
-            <select id="pay_select_worker" style="margin:15px 0;"></select>
-            <label style="font-size:11px; color:#94a3b8;">PAGO POR HORA ($):</label>
-            <input type="number" id="pay_rate" value="25" style="margin-bottom:15px;">
+        <div class="pay-modal-content">
+            <h3 style="margin:0 0 20px; color:var(--warning); text-align:center;">Generar Pagos</h3>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <div style="flex:1">
+                    <label style="font-size:10px; color:#94a3b8;">DESDE:</label>
+                    <input type="date" id="pay_date_from">
+                </div>
+                <div style="flex:1">
+                    <label style="font-size:10px; color:#94a3b8;">HASTA:</label>
+                    <input type="date" id="pay_date_to">
+                </div>
+            </div>
+            <div style="margin-bottom:20px;">
+                <label style="font-size:10px; color:#94a3b8;">TRABAJADOR:</label>
+                <select id="pay_select_worker"></select>
+            </div>
             <div style="display:flex; gap:10px;">
-                <button class="btn btn-pay-global" style="flex:1; justify-content:center;" onclick="ejecutarImpresionNomina()">IMPRIMIR</button>
-                <button class="btn" style="flex:1; background:#ef4444; color:white; justify-content:center;" onclick="cerrarModales()">CANCELAR</button>
+                <button class="btn btn-pay-global" style="flex:2; justify-content:center; padding:15px;" onclick="ejecutarImpresionNomina()">GENERAR Y ENVIAR</button>
+                <button class="btn" style="flex:1; background:var(--danger); color:white; justify-content:center;" onclick="cerrarModales()">CERRAR</button>
             </div>
         </div>
     </div>
 
 <script>
-    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwOwyokZuIeYG_Y3CmMAPrJB-gOT5Msu8S2zOJoT8r35gv4wPFY0Yc0D6F573nmT8UK-Q/exec"; 
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwd85tbr5ooSlZhHA0gtMo_5u17yYv4TvgwtkL-baKUlGF3Qw0z5W9e5zNYryCjbVRB3A/exec"; 
     let globalData = { clients: [], users: [], rawJobs: [] };
 
     window.onload = async () => {
@@ -123,18 +132,215 @@
 
     async function cargarConfiguracion() {
         try {
-            const resId = await fetch(`${URL_SCRIPT}?action=get_next_id`);
-            document.getElementById('id_orden').value = await resId.text();
             const resData = await fetch(`${URL_SCRIPT}?action=get_dropdowns`);
             globalData = { ...globalData, ...(await resData.json()) };
-            document.getElementById('select_cliente').innerHTML = '<option value="">-- Seleccionar --</option>' + globalData.clients.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-            document.getElementById('select_worker').innerHTML = '<option value="">-- Seleccionar --</option>' + globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
-        } catch(e) { console.error(e); }
+            const workersHTML = globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
+            document.getElementById('select_cliente').innerHTML = '<option value="">-- Cliente --</option>' + globalData.clients.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            document.getElementById('select_worker').innerHTML = '<option value="">-- Staff --</option>' + workersHTML;
+            document.getElementById('select_extra_worker').innerHTML = workersHTML;
+        } catch(e) { console.error("Error cargando config:", e); }
+    }
+
+    async function cargarTabla() {
+        const res = await fetch(URL_SCRIPT);
+        const trabajos = await res.json();
+        globalData.rawJobs = trabajos;
+
+        let maxNum = 0;
+        trabajos.forEach(j => {
+            if(j.id && j.id.startsWith('PTRWO')) {
+                const num = parseInt(j.id.replace('PTRWO', ''));
+                if(!isNaN(num) && num > maxNum) maxNum = num;
+            }
+        });
+        document.getElementById('id_orden').value = "PTRWO" + (maxNum + 1);
+
+        const agrupados = trabajos.reduce((acc, curr) => {
+            if (String(curr.estatus).toLowerCase() !== 'active') return acc;
+            if (!acc[curr.id]) acc[curr.id] = { ...curr, equipo: [], gastoActual: 0 };
+            const worker = globalData.users.find(u => u.name === curr.asignado_a);
+            const rate = worker ? parseFloat(worker.rate) : 0;
+            acc[curr.id].gastoActual += (parseFloat(curr.horas_acumuladas) * rate);
+            acc[curr.id].equipo.push({ nombre: curr.asignado_a, horas: curr.horas_acumuladas });
+            return acc;
+        }, {});
+
+        renderTabla(Object.values(agrupados));
+    }
+
+    function renderTabla(items) {
+        document.getElementById('lista_trabajos').innerHTML = items.map(t => {
+            const ratio = (t.gastoActual / t.presupuesto) * 100;
+            return `
+            <tr>
+                <td><b style="color:var(--primary)">${t.id}</b><br><b>${t.nombre_cliente}</b><br><small>${t.direccion}</small></td>
+                <td>${t.equipo.map(e => `<span class="staff-tag">${e.nombre} (${e.horas}h)</span>`).join('')}</td>
+                <td>
+                    <b style="color:var(--accent)">$${t.presupuesto}</b><br>
+                    <small>Gasto: $${t.gastoActual.toFixed(2)}</small>
+                    ${ratio > 85 ? '<span class="budget-alert">⚠️ GASTO ALTO</span>' : ''}
+                </td>
+                <td>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn" style="background:var(--primary); color:white;" title="Añadir Staff" onclick="abrirAddWorker('${t.id}')"><i class="fas fa-plus"></i></button>
+                        <button class="btn" style="background:rgba(255,255,255,0.1); color:white;" title="Ver Notas" onclick="alert('NOTAS COLUMNA I:\\n\\n${t.notas || 'Sin notas.'}')"><i class="fas fa-sticky-note"></i></button>
+                        <button class="btn" style="background:#25D366; color:white;" title="WhatsApp" onclick="whatsappReporte('${t.id}', '${t.nombre_cliente}', '${t.gastoActual.toFixed(2)}')"><i class="fab fa-whatsapp"></i></button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    async function guardarOrden() {
+        const payload = { 
+            action: 'CREATE_ORDER', 
+            id: document.getElementById('id_orden').value, 
+            presupuesto: document.getElementById('presupuesto').value, 
+            cliente: document.getElementById('select_cliente').value, 
+            email_cliente: document.getElementById('h_email_cliente').value, 
+            telefono: document.getElementById('h_telefono_cliente').value, 
+            direccion: document.getElementById('direccion').value, 
+            servicio: document.getElementById('h_servicio_cliente').value, 
+            asignado_a: document.getElementById('select_worker').value, 
+            email_trabajador: document.getElementById('h_email_worker').value, 
+            notas: document.getElementById('notas').value // ESTO VA A COLUMNA I
+        };
+        await fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+        location.reload();
+    }
+
+    function abrirAddWorker(id) {
+        document.getElementById('add_worker_id').value = id;
+        document.getElementById('modalAddWorker').style.display = 'flex';
+    }
+
+    async function ejecutarAddWorker() {
+        const id = document.getElementById('add_worker_id').value;
+        const workerName = document.getElementById('select_extra_worker').value;
+        const job = globalData.rawJobs.find(j => j.id === id);
+        const worker = globalData.users.find(u => u.name === workerName);
+
+        const payload = { 
+            action: 'CREATE_ORDER', id: id, presupuesto: job.presupuesto, cliente: job.nombre_cliente, 
+            email_cliente: job.email_cliente, telefono: job.telefono, direccion: job.direccion, 
+            servicio: job.servicio, asignado_a: workerName, email_trabajador: worker.email, notas: job.notas 
+        };
+        await fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+        location.reload();
+    }
+
+    function filtrarTabla() {
+        const val = document.getElementById('busqueda').value.toLowerCase();
+        const rows = document.getElementById('lista_trabajos').getElementsByTagName('tr');
+        for (let r of rows) { r.style.display = r.innerText.toLowerCase().includes(val) ? "" : "none"; }
+    }
+
+    function whatsappReporte(id, cliente, gasto) {
+        const msg = encodeURIComponent(`Pantoja Tile Reporte:\nID: ${id}\nCliente: ${cliente}\nGasto en nómina: $${gasto}`);
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
+    }
+
+    function abrirModalNominaGlobal() {
+        let options = '<option value="ALL">-- TODOS --</option>';
+        options += globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
+        document.getElementById('pay_select_worker').innerHTML = options;
+        const hoy = new Date();
+        document.getElementById('pay_date_from').value = new Date(hoy.setDate(hoy.getDate() - hoy.getDay() + 1)).toISOString().split('T')[0];
+        document.getElementById('pay_date_to').value = new Date(hoy.setDate(hoy.getDate() - hoy.getDay() + 6)).toISOString().split('T')[0];
+        document.getElementById('modalSelectPay').style.display = 'flex';
+    }
+
+    function cerrarModales() { 
+        document.getElementById('modalSelectPay').style.display = 'none'; 
+        document.getElementById('modalAddWorker').style.display = 'none'; 
+    }
+
+    function ejecutarImpresionNomina() {
+        const selection = document.getElementById('pay_select_worker').value;
+        const fromVal = document.getElementById('pay_date_from').value;
+        const toVal = document.getElementById('pay_date_to').value;
+        const from = new Date(fromVal + "T00:00:00");
+        const to = new Date(toVal + "T23:59:59");
+        let workersToPrint = [];
+
+        const procesar = (u) => {
+            let totalH = 0; let logs = [];
+            const rate = parseFloat(u.rate) || 0;
+            globalData.rawJobs.forEach(j => {
+                if(j.asignado_a === u.name) {
+                    (j.detalle_logs || []).forEach(l => {
+                        const dl = new Date(l.fecha);
+                        if(dl >= from && dl <= to) { totalH += parseFloat(l.horas); logs.push({...l, id: j.id, client: j.nombre_cliente}); }
+                    });
+                }
+            });
+            return { name: u.name, totalH, logs, rate, phone: u.phone || "" };
+        };
+
+        if(selection === "ALL") {
+            globalData.users.forEach(u => { const r = procesar(u); if(r.totalH > 0) workersToPrint.push(r); });
+        } else {
+            const u = globalData.users.find(x => x.name === selection);
+            const r = procesar(u); if(r.totalH > 0) workersToPrint.push(r);
+        }
+
+        if(workersToPrint.length === 0) return alert("Sin datos.");
+        imprimirElegante(workersToPrint, from.toLocaleDateString(), to.toLocaleDateString());
+
+        setTimeout(() => {
+            if(confirm("¿Enviar los avisos de pago por WhatsApp?")) {
+                workersToPrint.forEach(w => {
+                    const neto = (w.totalH * w.rate).toFixed(2);
+                    const msg = encodeURIComponent(`*PANTOJA TILE*\nHola *${w.name}*, tu pago de *$${neto}* está listo.\nPeriodo: ${from.toLocaleDateString()} - ${to.toLocaleDateString()}.\nAdjunto recibo.`);
+                    window.open(`https://wa.me/${w.phone}?text=${msg}`, '_blank');
+                });
+            }
+        }, 1500);
+        cerrarModales();
+    }
+
+    function imprimirElegante(lista, f1, f2) {
+        let win = window.open('', '_blank');
+        let html = `<html><head><style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap');
+            @page { size: letter; margin: 0; }
+            body { font-family: 'Inter', sans-serif; color: #1e293b; margin:0; padding:0; background: #fff; }
+            .page { padding: 40px; page-break-after: always; box-sizing: border-box; width: 100%; border-bottom: 2px solid #f1f5f9; }
+            .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+            .logo { height: 70px; }
+            .emp-card { background: #f1f5f9; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid #6366f1; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th { text-align: left; padding: 10px; background: #1e293b; color: white; font-size: 10px; }
+            td { padding: 10px; border-bottom: 1px solid #e2e8f0; font-size: 11px; }
+            .total-box { background: #1e293b; color: white; padding: 15px; border-radius: 10px; font-size: 18px; font-weight: bold; display: flex; justify-content: space-between; }
+            .sig { margin-top: 50px; display: flex; justify-content: space-between; }
+            .line { width: 180px; border-top: 1px solid #000; text-align: center; font-size: 9px; padding-top: 5px; }
+        </style></head><body>`;
+
+        lista.forEach(w => {
+            html += `<div class="page">
+                <div class="header">
+                    <img src="img/logo.png" class="logo" onerror="this.src='https://via.placeholder.com/150x70?text=PANTOJA+TILE'">
+                    <div style="text-align:right; font-size:11px;"><b>PAYROLL STUB</b><br>${f1} - ${f2}</div>
+                </div>
+                <div class="emp-card"><small>Trabajador:</small><h2 style="margin:0;">${w.name}</h2></div>
+                <table>
+                    <thead><tr><th>Fecha</th><th>ID Proyecto</th><th>Horas</th></tr></thead>
+                    <tbody>${w.logs.map(l => `<tr><td>${new Date(l.fecha).toLocaleDateString()}</td><td>${l.id}</td><td>${l.horas}</td></tr>`).join('')}</tbody>
+                </table>
+                <div style="margin-left:auto; width:280px; margin-bottom:20px;">
+                    <div class="total-box"><span>NETO:</span> <span>$${(w.totalH * w.rate).toFixed(2)}</span></div>
+                </div>
+                <div class="sig"><div class="line">ADMINISTRATION</div><div class="line">RECEIVED BY ${w.name.toUpperCase()}</div></div>
+            </div>`;
+        });
+        html += `<script>window.onload = function() { setTimeout(function() { window.print(); }, 1200); };<\/script></body></html>`;
+        win.document.write(html); win.document.close();
     }
 
     function autoFillCliente() {
         const c = globalData.clients.find(x => x.name === document.getElementById('select_cliente').value);
-        if(c) {
+        if(c) { 
             document.getElementById('h_email_cliente').value = c.email; 
             document.getElementById('h_telefono_cliente').value = c.phone; 
             document.getElementById('h_servicio_cliente').value = c.service; 
@@ -144,206 +350,6 @@
     function autoFillWorker() {
         const w = globalData.users.find(x => x.name === document.getElementById('select_worker').value);
         if(w) document.getElementById('h_email_worker').value = w.email;
-    }
-
-    function cerrarModales() {
-        document.getElementById('modalWorker').style.display = 'none';
-        document.getElementById('modalSelectPay').style.display = 'none';
-    }
-
-    async function cargarTabla() {
-        const res = await fetch(URL_SCRIPT);
-        const trabajos = await res.json();
-        globalData.rawJobs = trabajos;
-        
-        const agrupados = trabajos.reduce((acc, current) => {
-            if (String(current.estatus).toLowerCase() !== 'active') return acc;
-            if (!acc[current.id]) {
-                acc[current.id] = { ...current, equipo: [] };
-            }
-            const existe = acc[current.id].equipo.find(e => e.nombre === current.asignado_a);
-            if(!existe) {
-                acc[current.id].equipo.push({ 
-                    nombre: current.asignado_a, 
-                    horas: current.horas_acumuladas,
-                    detalle: current.detalle_logs || []
-                });
-            }
-            return acc;
-        }, {});
-
-        const tbody = document.getElementById('lista_trabajos');
-        tbody.innerHTML = Object.values(agrupados).map(t => `
-            <tr>
-                <td data-label="Proyecto">
-                    <span style="background:var(--primary); padding:2px 6px; border-radius:4px; font-size:10px; font-weight:800">#${t.id}</span><br>
-                    <b style="font-size:15px">${t.nombre_cliente}</b><br>
-                    <small style="color:#94a3b8">${t.servicio}</small>
-                </td>
-                <td data-label="Equipo">
-                    ${t.equipo.map(e => `<div class="staff-tag"><i class="fas fa-user-circle"></i> ${e.nombre} <span class="hours-badge">${e.horas}h</span></div>`).join('')}
-                    <button class="btn btn-add-worker" onclick="agregarStaff('${t.id}')"><i class="fas fa-plus"></i></button>
-                </td>
-                <td data-label="Finanzas"><b style="color:var(--accent)">$${t.presupuesto}</b></td>
-                <td data-label="Acciones">
-                    <div class="actions-cell">
-                        <button class="btn btn-done" onclick="cambiarEstatus('${t.id}')">DONE</button>
-                        <button class="btn btn-print" onclick="imprimirProyecto('${t.id}')"><i class="fas fa-print"></i> INFO</button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    function abrirModalNominaGlobal() {
-        let options = '<option value="ALL">-- TODOS LOS QUE TRABAJARON --</option>';
-        options += globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
-        document.getElementById('pay_select_worker').innerHTML = options;
-        document.getElementById('modalSelectPay').style.display = 'flex';
-    }
-
-    function ejecutarImpresionNomina() {
-        const selection = document.getElementById('pay_select_worker').value;
-        const rate = parseFloat(document.getElementById('pay_rate').value);
-        if(isNaN(rate)) return alert("Ingresa un pago válido");
-
-        let workersToPrint = [];
-
-        if (selection === "ALL") {
-            // Filtrar solo trabajadores que tengan horas > 0 en algún proyecto
-            globalData.users.forEach(u => {
-                let totalH = 0;
-                let logs = [];
-                globalData.rawJobs.forEach(job => {
-                    if(job.asignado_a === u.name) {
-                        totalH += parseFloat(job.horas_acumuladas);
-                        logs = logs.concat((job.detalle_logs || []).map(l => ({...l, idProyecto: job.id})));
-                    }
-                });
-                if(totalH > 0) workersToPrint.push({ name: u.name, totalH, logs });
-            });
-        } else {
-            let totalH = 0;
-            let logs = [];
-            globalData.rawJobs.forEach(job => {
-                if(job.asignado_a === selection) {
-                    totalH += parseFloat(job.horas_acumuladas);
-                    logs = logs.concat((job.detalle_logs || []).map(l => ({...l, idProyecto: job.id})));
-                }
-            });
-            if(totalH > 0) workersToPrint.push({ name: selection, totalH, logs });
-        }
-
-        if(workersToPrint.length === 0) return alert("No hay registros de horas para procesar.");
-        
-        imprimirLoteRecibos(workersToPrint, rate);
-        cerrarModales();
-    }
-
-    function imprimirLoteRecibos(lista, rate) {
-        const logoPath = "img/logo.png";
-        let win = window.open('', '_blank');
-        
-        let fullHtml = `<html><head><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-            <style>
-                body { font-family: 'Inter', sans-serif; padding:0; margin:0; color: #1e293b; }
-                .page { padding: 40px; page-break-after: always; min-height: 90vh; }
-                .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;}
-                .worker-card { border: 1px solid #e2e8f0; border-radius: 12px; padding:20px; background:#fff; }
-                table { width:100%; border-collapse:collapse; margin-top:10px; }
-                td, th { padding:8px; border-bottom:1px solid #f1f5f9; font-size:12px; }
-                th { color:#64748b; text-transform:uppercase; font-size:10px; text-align:left; }
-                .week-header { background:#f8fafc; font-weight:bold; }
-                .grand-total { background:#1e293b; color:white; font-size:18px; font-weight:bold; }
-                .sign-area { margin-top:50px; display:flex; justify-content:space-between; align-items:flex-end; }
-                .sign-line { text-align:center; width:200px; border-top:1px solid #000; font-size:10px; padding-top:5px; }
-            </style></head><body>`;
-
-        lista.forEach(w => {
-            // Agrupar por semana para este trabajador
-            const xSemana = w.logs.reduce((acc, l) => {
-                const s = l.semana || "N/A";
-                if(!acc[s]) acc[s] = { h:0, d:[] };
-                acc[s].h += parseFloat(l.horas);
-                acc[s].d.push(l);
-                return acc;
-            }, {});
-
-            fullHtml += `<div class="page">
-                <div class="header">
-                    <div><h1 style="margin:0; color:#6366f1;">PAYROLL CHECK STUB</h1><p style="margin:0; font-size:12px; color:#64748b;">Employee: ${w.name.toUpperCase()} | Rate: $${rate}/hr</p></div>
-                    <img src="${logoPath}" style="height:60px;">
-                </div>
-                <div class="worker-card">
-                    <table><thead><tr><th>Week</th><th>Date</th><th>Job</th><th>Notes</th><th style="text-align:right;">Hours</th></tr></thead><tbody>`;
-
-            Object.keys(xSemana).forEach(s => {
-                xSemana[s].d.forEach((d, idx) => {
-                    fullHtml += `<tr><td>${idx===0?`<b>Week ${s}</b>`:''}</td><td>${new Date(d.fecha).toLocaleDateString()}</td><td>#${d.idProyecto}</td><td>${d.notas||'-'}</td><td align="right">${d.horas}</td></tr>`;
-                });
-                fullHtml += `<tr class="week-header"><td colspan="4" align="right">Weekly Subtotal (W${s}):</td><td align="right">${xSemana[s].h.toFixed(2)}h</td></tr>`;
-            });
-
-            fullHtml += `<tr class="grand-total"><td colspan="4" align="right">TOTAL PAYOUT:</td><td align="right">$${(w.totalH * rate).toFixed(2)}</td></tr>
-            </tbody></table></div>
-            <div class="sign-area">
-                <div class="sign-line">Authorized Signature</div>
-                <div class="sign-line">Employee Signature: ${w.name}</div>
-            </div>
-            <p style="text-align:center; font-size:10px; color:#94a3b8; margin-top:30px;">Generated on ${new Date().toLocaleString()} - Pantoja Tile Administration</p>
-            </div>`;
-        });
-
-        fullHtml += `</body></html>`;
-        win.document.write(fullHtml);
-        win.document.close();
-        setTimeout(() => win.print(), 500);
-    }
-
-    function agregarStaff(orderId) {
-        document.getElementById('modal_order_id').value = orderId;
-        document.getElementById('modal_select_worker').innerHTML = globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
-        document.getElementById('modalWorker').style.display = 'flex';
-    }
-
-    async function confirmarNuevoStaff() {
-        const id = document.getElementById('modal_order_id').value;
-        const name = document.getElementById('modal_select_worker').value;
-        const w = globalData.users.find(u => u.name === name);
-        await fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'ADD_WORKER_TO_ORDER', id, asignado_a: name, email_trabajador: w.email }) });
-        location.reload();
-    }
-
-    async function guardarOrden() {
-        const btn = document.querySelector('.btn-save');
-        btn.disabled = true; btn.innerHTML = "PROCESANDO...";
-        const payload = {
-            action: 'CREATE_ORDER', id: document.getElementById('id_orden').value,
-            presupuesto: document.getElementById('presupuesto').value, cliente: document.getElementById('select_cliente').value,
-            email_cliente: document.getElementById('h_email_cliente').value, telefono: document.getElementById('h_telefono_cliente').value,
-            direccion: document.getElementById('direccion').value, servicio: document.getElementById('h_servicio_cliente').value,
-            description_admin: document.getElementById('notas_admin').value, asignado_a: document.getElementById('select_worker').value,
-            email_trabajador: document.getElementById('h_email_worker').value
-        };
-        await fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-        location.reload();
-    }
-
-    function imprimirProyecto(orderId) {
-        const p = globalData.rawJobs.find(j => j.id == orderId);
-        if(!p) return;
-        const equipo = globalData.rawJobs.filter(j => j.id == orderId);
-        const logoPath = "img/logo.png";
-        let win = window.open('', '_blank');
-        win.document.write(`<html><head><title>Job Order #${orderId}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet"><style>body { font-family: 'Inter', sans-serif; padding:50px; color: #1e293b; line-height: 1.5; }.header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #6366f1; padding-bottom: 20px; margin-bottom: 30px; }.logo { height: 70px; }.title-area h1 { margin: 0; color: #6366f1; font-size: 28px; }.info-section { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }.info-card { background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; }.info-card h4 { margin: 0 0 5px; color: #6366f1; font-size: 11px; text-transform: uppercase; }table { width:100%; border-collapse:collapse; margin-top:20px; }th { background: #1e293b; color: white; padding: 12px; text-align: left; font-size: 12px; }td { border-bottom: 1px solid #e2e8f0; padding: 12px; font-size: 13px; }</style></head><body><div class="header"><div class="title-area"><h1>PANTOJA TILE</h1><p style="margin:0; font-size:12px; color:#64748b; font-weight:bold;">WORK ORDER REPORT</p></div><img src="${logoPath}" class="logo"></div><div style="display:flex; justify-content:space-between; margin-bottom:20px;"><h2 style="margin:0;">ORDER #${p.id}</h2><span style="color:#64748b">Date: ${new Date().toLocaleDateString()}</span></div><div class="info-section"><div class="info-card"><h4>Client Info</h4><strong>${p.nombre_cliente}</strong><br>${p.direccion}<br>${p.telefono}</div><div class="info-card"><h4>Project Info</h4><strong>Service:</strong> ${p.servicio}<br><strong>Budget:</strong> $${p.presupuesto}</div></div><div class="info-card"><h4>Admin Notes</h4>${p.notas_admin || 'N/A'}</div><table><thead><tr><th>Staff Name</th><th>Email</th><th>Total Hours</th></tr></thead><tbody>${equipo.map(e => `<tr><td>${e.asignado_a}</td><td>${e.email_trabajador}</td><td><strong>${e.horas_acumuladas}h</strong></td></tr>`).join('')}</tbody></table></body></html>`);
-        win.document.close();
-        setTimeout(() => win.print(), 500);
-    }
-
-    async function cambiarEstatus(id) {
-        if(!confirm("¿Cerrar proyecto?")) return;
-        await fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'CHANGE_STATUS', id: id }) });
-        location.reload();
     }
 </script>
 </body>
