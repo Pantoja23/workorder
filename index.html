@@ -176,6 +176,11 @@
             <p style="font-size: 11px; color: #94a3b8; font-weight: 600;">PORTAL DE ADMINISTRACIÓN MASTER <span id="timer-display"></span></p>
         </header>
 
+        <div id="critical-alerts-panel" style="display:none; margin: 10px 0; padding: 12px; background: rgba(239, 68, 68, 0.15); border-radius: 12px; border-left: 5px solid var(--danger);">
+    <div id="alerts-container" style="display: flex; flex-direction: column; gap: 8px;">
+        </div>
+</div>
+
         <div class="section-title">Nueva Orden de Trabajo</div>
         <div class="card">
             <div class="grid">
@@ -384,10 +389,29 @@
     }
 
     function renderTabla(items) {
+        const alertsContainer = document.getElementById('alerts-container');
+        const alertsPanel = document.getElementById('critical-alerts-panel');
+        let alertLinesHTML = ""; // Acumulador de líneas
+
         document.getElementById('lista_trabajos').innerHTML = items.map(t => {
             const profit = t.presupuesto - t.gastoActual;
             const ratio = (t.gastoActual / t.presupuesto) * 100;
             
+            // --- SCANNER DE GENTE LEJOS (LÍNEA POR TRABAJADOR) ---
+            t.equipo.forEach(e => {
+                if (e.clase === 'gps-lejos') {
+                    // Extraemos la distancia del texto e.gps (ej: "LEJOS (0.50000 mi)")
+                    const distancia = e.gps.replace('LEJOS', '').trim();
+                    
+                    alertLinesHTML += `
+                        <div style="color: var(--danger); font-weight: 800; font-size: 13px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-exclamation-triangle" style="animation: pulse 1s infinite;"></i>
+                            <span>${e.nombre.toUpperCase()} está a <span style="color:white;">${distancia}</span> de la obra en ${t.id} (${t.nombre_cliente})</span>
+                        </div>
+                    `;
+                }
+            });
+
             return `
             <tr>
                 <td>
@@ -417,8 +441,17 @@
                 </td>
             </tr>`;
         }).join('');
+
+        // MOSTRAR EL PANEL SI HAY LÍNEAS DE ALERTA
+        if (alertLinesHTML !== "") {
+            alertsContainer.innerHTML = alertLinesHTML;
+            alertsPanel.style.display = "block";
+        } else {
+            alertsPanel.style.display = "none";
+        }
     }
 
+    
     function verMapaEntrada(direccionTrabajador, nombreTrabajador, idProyecto) {
         // 1. Buscamos la dirección del PROYECTO (el destino)
         const proyecto = globalData.rawJobs.find(j => j.id === idProyecto);
