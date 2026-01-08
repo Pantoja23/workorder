@@ -1,5 +1,5 @@
 // URL de tu Web App de Google Apps Script (Asegúrate de que sea la última versión publicada)
-const API_URL = "https://script.google.com/macros/s/AKfycby7X38BpvQOZBYstLY2dy6fadFZO2j-exqhD7r-kHWmWtU1rJYcs5_IMrkJ69c-Zx-99Q/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxyyH80FUstRfFi6LrsL5c5YmNrdOhSGGDvPXKcB_lFVCRl7lQVt4Pj-q3uPlL8g4nhXA/exec";
 
 let CLIENTS_CACHE = [];
 let USERS_CACHE = [];
