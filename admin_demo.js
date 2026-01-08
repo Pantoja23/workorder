@@ -2,7 +2,7 @@
 // admin.js - VERSIÓN PRODUCCIÓN CON GOOGLE SHEETS
 // ================================================
 
-const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbyLMQvkrwaRWg9gtdG_Q9UcrFeYxGmEyjo6pO3A71cG1foJwLQ0E9-NK917b3J2vRSwEA/exec"; // Reemplaza con tu script real
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzSKkj2dypYJ8qPPUz5LwPE5zrOMlyzFOAHqhXgCXy-qVCrUOKTMkWx8Y0qZ9YvV47OYg/exec"; // Reemplaza con tu script real
 let globalData = { clients: [], users: [], rawJobs: [] };
 let countdown = 15;
 
