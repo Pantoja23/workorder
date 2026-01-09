@@ -77,10 +77,21 @@
         <div class="card" style="width: 300px; text-align: center;">
             <img src="img/logo.png" style="width: 80px; margin-bottom: 10px; filter: drop-shadow(0 0 10px var(--primary));">
             <h2 style="letter-spacing: 2px;">PANTOJA <span style="color:var(--primary)">ADMIN</span></h2>
-            <input type="text" id="login_email" placeholder="Usuario / Email" style="margin-bottom: 10px;">
-            <input type="password" id="login_pass" placeholder="Contraseña" style="margin-bottom: 20px;">
-            <button onclick="handleLogin()" class="btn btn-save">ACCEDER AL PANEL</button>
-            <div id="msg_login" style="font-size: 11px; margin-top: 10px;"></div>
+            
+            <input type="text" id="login_email" placeholder="Usuario / Email" style="margin-bottom: 10px; width: 100%;">
+            
+            <div style="position: relative; width: 100%; margin-bottom: 5px;">
+                <input type="password" id="login_pass" placeholder="Contraseña" style="width: 100%; padding-right: 40px; margin-bottom: 0;">
+                <span onclick="togglePass()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--primary);">
+                    <i id="eye_icon" class="fas fa-eye"></i>
+                </span>
+            </div>
+
+            <div id="debug_info" style="font-size: 10px; color: #666; margin-bottom: 15px; text-align: left; font-family: monospace; min-height: 12px; padding-left: 5px;"></div>
+
+            <button onclick="handleLogin()" class="btn btn-save" style="width: 100%;">ACCEDER AL PANEL</button>
+            
+            <div id="msg_login" style="font-size: 11px; margin-top: 10px; font-weight: bold;"></div>
         </div>
     </div>
 
@@ -153,284 +164,358 @@
     <div id="receipt-area"></div>
 
 <script>
-    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwmYNtkorIut7Z9Sj5AmoS2QMhpF9lfbYHnAUrmXbFNWjLqqgQ3VdCOSIQc6b0u998lZA/exec"; 
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxQ2aYTNbIem-Zris-ln1clA6v7TiMU7loCkTA9Q6HHdyfOcZZu24sg6LuVX_9EW6IjpA/exec"; 
     let globalData = { clients: [], users: [], rawJobs: [] };
     let timerRef = 15;
-    // Línea 114: Cambia el nombre de la variable de carga
-let session = JSON.parse(localStorage.getItem('panto_session')); 
+
+    //Pantoja 
+    let session = null;
 
 window.onload = () => {
-    if(session) {
+    session = JSON.parse(localStorage.getItem('panto_session'));
+    console.log("SESSION:", session);
+
+    if (session && session.success === true) {
         initDashboard();
+    } else {
+        localStorage.removeItem('panto_session');
     }
 };
 
-async function saveNewUser() {
-    const btn = event.target;
-    btn.disabled = true;
-    btn.innerText = "PROCESANDO...";
+  
+   // --- LOGIN ---
+    async function handleLogin() {
+    // 1. Capturar elementos
+    const emailInput = document.getElementById('login_email');
+    const passInput = document.getElementById('login_pass');
+    const msg = document.getElementById('msg_login');
+    const debug = document.getElementById('debug_info'); // Asegúrate de tener este ID en tu HTML
+    const btn = document.querySelector('button[onclick="handleLogin()"]');
 
-    const payload = {
-        action: 'CREATE_USER',
-        name: document.getElementById('nu_name').value,
-        email: document.getElementById('nu_email').value,
-        pass: document.getElementById('nu_pass').value,
-        rol: document.getElementById('nu_rol').value,
-        compania: document.getElementById('nu_comp').value,
-        rate: document.getElementById('nu_rate').value,
-        phone: "" // Puedes añadir un input para esto si gustas
-    };
+    // 2. Limpieza inicial de mensajes
+    if (msg) msg.innerText = "";
+    if (debug) debug.innerText = "";
 
+    const email = emailInput.value.trim();
+    const pass = passInput.value.trim();
+
+    if (!email || !pass) return alert("Completa los datos");
+
+    // 3. Feedback Visual y Debug
+    msg.innerText = "Verificando credenciales...";
+    msg.style.color = "var(--primary)";
+    if (debug) debug.innerText = `Enviando: Email[${email}] | Pass[${pass}]`;
+    if (btn) btn.disabled = true;
+    
     try {
-        const response = await fetch(URL_SCRIPT, { 
-            method: 'POST', 
-            body: JSON.stringify(payload) 
-        });
-        const result = await response.text();
-
-        if (result.includes("SUCCESS")) {
-            alert("✅ ¡Usuario creado con éxito!");
-            location.reload();
+        // Cache busting con t=${Date.now()}
+        const url = `${URL_SCRIPT}?action=login_staff&email=${encodeURIComponent(email)}&pass=${encodeURIComponent(pass)}&t=${Date.now()}`;
+        
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Error en la respuesta del servidor");
+        
+        const data = await res.json();
+    
+        if (data.success) {
+            const rolesAutorizados = ['Admin', 'Master', 'Supervisor'];
+            if (rolesAutorizados.includes(data.rol)) {
+                msg.innerText = "Acceso concedido. Entrando...";
+                msg.style.color = "green";
+                
+                localStorage.setItem('panto_session', JSON.stringify(data));
+                
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
+            } else {
+                msg.innerText = "Acceso restringido: Tu rol es " + data.rol;
+                msg.style.color = "orange";
+                if (btn) btn.disabled = false;
+            }
         } else {
-            alert("❌ " + result); // Aquí mostrará "El email ya está registrado"
-            btn.disabled = false;
-            btn.innerText = "GUARDAR";
+            // El servidor ahora te dirá si el correo no existe o si la clave está mal
+            msg.innerText = data.msg || "Credenciales incorrectas";
+            msg.style.color = "red";
+            if (btn) btn.disabled = false;
         }
-    } catch (e) {
-        alert("Error de conexión al servidor");
-        btn.disabled = false;
-        btn.innerText = "GUARDAR";
+    } catch(e) { 
+        console.error("Error de login:", e);
+        msg.innerText = "Error de conexión: Revisa el script o internet.";
+        msg.style.color = "red";
+        if (btn) btn.disabled = false;
     }
 }
+
+// FUNCIÓN PARA EL OJITO (Añádela también)
+function togglePass() {
+    const passInput = document.getElementById('login_pass');
+    const eyeIcon = document.getElementById('eye_icon');
+    if (passInput.type === "password") {
+        passInput.type = "text";
+        eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        passInput.type = "password";
+        eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+}
+
     
+    // --- INICIALIZACIÓN ---
+    async function initDashboard() {
+        document.getElementById('view_login').classList.add('hidden');
+        document.getElementById('view_main').classList.remove('hidden');
+        document.getElementById('txt_bienvenida').innerText = `${session.rol}: ${session.name} | ${session.compania}`;
+        
+        // Carga herramientas especiales si es Master
+        if(session.rol === 'Master') {
+            await initMasterTools();
+        }
+
+        cargarConfiguracion();
+        cargarTabla();
+        
+        // Refresco automático cada 15 seg
+        setInterval(() => {
+            timerRef--;
+            document.getElementById('secs').innerText = timerRef;
+            if(timerRef <= 0) {
+                timerRef = 15;
+                cargarTabla();
+            }
+        }, 1000);
+    }
+
+    // --- MASTER TOOLS ---
     async function initMasterTools() {
-    if (session.rol === 'Master') {
         const header = document.querySelector('header');
-        // Si ya existe el switch, no lo pongas doble
         if (document.getElementById('master_switcher')) return;
 
         const selectorHTML = `
             <div id="master_switcher" style="margin-top:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; border:1px solid var(--primary);">
-                <label style="font-size:10px; color:var(--primary); font-weight:bold;">MODO MASTER: CAMBIAR COMPAÑÍA</label>
+                <label style="font-size:10px; color:var(--primary); font-weight:bold;">MODO MASTER: SELECCIONAR EMPRESA</label>
                 <select id="master_company_select" onchange="switchCompany(this.value)" style="margin-top:5px; border-color:var(--primary); background: #070b14; color: white;"></select>
             </div>
         `;
         header.insertAdjacentHTML('beforeend', selectorHTML);
 
-        // Llamamos a la acción correcta: get_companies
-        const res = await fetch(`${URL_SCRIPT}?action=get_companies&userRol=${session.rol}`);
-        const companies = await res.json();
-        
-        const select = document.getElementById('master_company_select');
-        select.innerHTML = companies.map(c => `<option value="${c}" ${c === session.compania ? 'selected' : ''}>${c}</option>`).join('');
-    }
-}
-
-// Función para cambiar de empresa
-function switchCompany(newComp) {
-    session.compania = newComp; // Cambiamos la compañía en la sesión actual
-    document.getElementById('txt_bienvenida').innerText = `Admin: ${session.name} | ${session.compania}`;
-    
-    // RE-CARGAMOS TODO con la nueva empresa
-    cargarConfiguracion();
-    cargarTabla();
-    alert("Cambiado a: " + newComp);
-}
-
-    // --- LÓGICA DE LOGIN ---
-    async function handleLogin() {
-        const email = document.getElementById('login_email').value.trim();
-        const pass = document.getElementById('login_pass').value.trim();
-        const msg = document.getElementById('msg_login');
-
-        if(!email || !pass) return alert("Completa los datos");
-        
         try {
-            const res = await fetch(`${URL_SCRIPT}?action=login_staff&email=${encodeURIComponent(email)}&pass=${encodeURIComponent(pass)}&t=${Date.now()}`);
-           const data = await res.json();
-        
-        if (data.success) {
-            // 1. Verificamos que el rol sea uno de los permitidos para entrar al Dashboard
-            const rolesAutorizados = ['Admin', 'Master', 'Supervisor'];
-            
-            if (rolesAutorizados.includes(data.rol)) {
-                // 2. Guardamos la sesión (usa un nombre genérico como 'panto_session')
-                localStorage.setItem('panto_session', JSON.stringify(data));
-                
-                // 3. Limpiamos cualquier rastro viejo antes de recargar
-                console.log("Sesión iniciada como:", data.rol);
-                location.reload();
-            } else {
-                // Si es un 'Worker' o un rol no autorizado para esta vista
-                msg.innerText = "Acceso restringido: Tu rol es " + data.rol;
-                msg.style.color = "orange";
-            }
-        } else {
-            // Error de credenciales (Usuario inactivo o pass mal)
-            msg.innerText = data.msg || "Credenciales incorrectas";
-            msg.style.color = "red";
-        }
-    } catch(e) { 
-        console.error(e);
-        alert("Error de conexión con el servidor"); 
-    }
-}
-    
-    function autoFillCliente() {
-    const name = document.getElementById('select_cliente').value;
-    const client = globalData.clients.find(c => c.name === name);
-    if(client) {
-        document.getElementById('direccion').value = client.address;
-        document.getElementById('notas_admin').value = client.notes;
-        document.getElementById('h_email_cliente').value = client.email;
-        document.getElementById('h_telefono_cliente').value = client.phone;
-        document.getElementById('h_servicio_cliente').value = client.service;
-    }
-}
-
-    function initDashboard() {
-        document.getElementById('view_login').classList.add('hidden');
-        document.getElementById('view_main').classList.remove('hidden');
-        
-        // --- CAMBIO AQUÍ: Ahora usa session.rol en lugar de decir "Admin" siempre ---
-        document.getElementById('txt_bienvenida').innerText = `${session.rol}: ${session.name} | ${session.compania}`;
-        
-        cargarConfiguracion();
-        cargarTabla();
-        
-        // Si eres Master, aquí podrías activar el botón de crear usuarios que hicimos
-        if(session.rol === 'Master') {
-     initMasterTools(); // <--- Quítale el // para que funcione
-}
-        
-        setInterval(() => {
-            timerRef--;
-            document.getElementById('secs').innerText = timerRef;
-            if(timerRef <= 0) { cargarTabla(); timerRef = 15; }
-        }, 1000);
+            const res = await fetch(`${URL_SCRIPT}?action=get_companies&userRol=${session.rol}`);
+            const companies = await res.json();
+            const select = document.getElementById('master_company_select');
+            select.innerHTML = companies.map(c => `<option value="${c.nombre}" ${c.nombre === session.compania ? 'selected' : ''}>${c.nombre}</option>`).join('');
+        } catch (e) { console.error(e); }
     }
 
+    function switchCompany(newComp) {
+        session.compania = newComp;
+        localStorage.setItem('panto_session', JSON.stringify(session));
+        location.reload();
+    }
+
+    // --- DATOS Y TABLA ---
     async function cargarConfiguracion() {
-    try {
-        // Inyectamos userRol y mantenemos tu compania
-        const resData = await fetch(`${URL_SCRIPT}?action=get_dropdowns&compania=${encodeURIComponent(session.compania)}&userRol=${session.rol}`);
-        const data = await resData.json();
-        globalData.clients = data.clients;
-        globalData.users = data.users;
-        
-        const resId = await fetch(`${URL_SCRIPT}?action=get_next_id`);
-        const nextId = await resId.text();
-        document.getElementById('id_orden').value = nextId.trim().replace(/[^0-9]/g, "");
-        
-        document.getElementById('select_cliente').innerHTML = '<option value="">-- Cliente --</option>' + globalData.clients.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-        document.getElementById('select_worker').innerHTML = '<option value="">-- Staff --</option>' + globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
-        document.getElementById('pay_select_worker').innerHTML = '<option value="TODOS">-- TODOS --</option>' + globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
-    } catch(e) { console.error(e); }
-}
+        try {
+            const resData = await fetch(`${URL_SCRIPT}?action=get_dropdowns&compania=${encodeURIComponent(session.compania)}&userRol=${session.rol}`);
+            const data = await resData.json();
+            globalData.clients = data.clients;
+            globalData.users = data.users;
+            
+            // Busca esta parte dentro de cargarConfiguracion()
+const resId = await fetch(`${URL_SCRIPT}?action=get_next_id&compania=${encodeURIComponent(session.compania)}`);
+const nextId = await resId.text();
+document.getElementById('id_orden').value = nextId.trim();
+           
+                      document.getElementById('select_cliente').innerHTML = '<option value="">-- Cliente --</option>' + globalData.clients.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            document.getElementById('select_worker').innerHTML = '<option value="">-- Staff --</option>' + globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
+            document.getElementById('pay_select_worker').innerHTML = '<option value="TODOS">-- TODOS --</option>' + globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
+        } catch(e) { console.error(e); }
+    }
 
     async function cargarTabla() {
-    try {
-        // IMPORTANTE: Enviamos userRol y userCompania
-        const res = await fetch(`${URL_SCRIPT}?action=get_active_jobs&userCompania=${encodeURIComponent(session.compania)}&userRol=${session.rol}`);
-        const trabajos = await res.json();
-        globalData.rawJobs = trabajos; 
+        try {
+            const res = await fetch(`${URL_SCRIPT}?action=get_active_jobs&userCompania=${encodeURIComponent(session.compania)}&userRol=${session.rol}`);
+            const trabajos = await res.json();
+            globalData.rawJobs = trabajos; 
 
-        // --- TU LÓGICA ROBUSTA EMPIEZA AQUÍ (NO SE TOCA NADA) ---
-        const agrupados = trabajos.reduce((acc, curr) => {
-            if (!acc[curr.id]) {
-                acc[curr.id] = { id: curr.id, cliente: curr.cliente, presupuesto: curr.presupuesto, equipo: [] };
-            }
-            // ... (Toda tu lógica de colorClass, GPS y match se queda igual)
-            let colorClass = "";
-            let etiquetaGps = "No Log";
-            let distancia = null;
-            const match = String(curr.gps_in).match(/\(([^)]+)\)/);
-            if (match) distancia = parseFloat(match[1]);
-
-            if (curr.gps_out && curr.gps_out.trim() !== "" && curr.gps_out !== "undefined") {
-                colorClass = "status-terminado"; etiquetaGps = "DONE";
-            } else if (curr.gps_in && curr.gps_in !== "undefined") {
-                if (distancia !== null) {
-                    etiquetaGps = distancia.toFixed(3) + " mi";
-                    colorClass = (distancia <= 0.2) ? "status-ok" : "status-lejos";
+            const agrupados = trabajos.reduce((acc, curr) => {
+                if (!acc[curr.id]) {
+                    acc[curr.id] = { id: curr.id, cliente: curr.cliente, presupuesto: curr.presupuesto, equipo: [], direccion: curr.direccion };
                 }
-            }
-            acc[curr.id].equipo.push({
-                nombre: curr.asignado_a,
-                horas: curr.horas_acumuladas,
-                clase: colorClass,
-                label: etiquetaGps,
-                mapa: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(curr.direccion)}`
-            });
-            return acc;
-        }, {});
+                
+                let colorClass = "";
+                let etiquetaGps = "No Log";
+                let distancia = null;
+                const match = String(curr.gps_in).match(/\(([^)]+)\)/);
+                if (match) distancia = parseFloat(match[1]);
 
-        // Renderizado de la tabla (Sigue igual)
-        const rows = Object.values(agrupados);
-        const tabla = document.getElementById("lista_trabajos");
-        if (!rows.length) {
-            tabla.innerHTML = `<tr><td colspan="4" align="center">No hay proyectos activos</td></tr>`;
-            return;
+                if (curr.gps_out && curr.gps_out.trim() !== "" && curr.gps_out !== "undefined") {
+                    colorClass = "status-terminado"; etiquetaGps = "DONE";
+                } else if (curr.gps_in && curr.gps_in !== "undefined") {
+                    if (distancia !== null) {
+                        etiquetaGps = distancia.toFixed(3) + " mi";
+                        colorClass = (distancia <= 0.2) ? "status-ok" : "status-lejos";
+                    }
+                }
+                
+                acc[curr.id].equipo.push({
+                    nombre: curr.asignado_a,
+                    horas: curr.horas_acumuladas,
+                    clase: colorClass,
+                    label: etiquetaGps,
+                    mapa: 'https://www.google.com/maps/search/' + encodeURIComponent(curr.direccion)
+                });
+                return acc;
+            }, {});
+
+            const rows = Object.values(agrupados);
+            const tabla = document.getElementById("lista_trabajos");
+            if (!rows.length) {
+                tabla.innerHTML = `<tr><td colspan="4" align="center">No hay proyectos activos</td></tr>`;
+                return;
+            }
+
+            tabla.innerHTML = rows.map(t => `
+                <tr>
+                    <td><span style="color:var(--primary); font-weight:800;">#${t.id}</span><br><b>${t.cliente}</b></td>
+                    <td>
+                        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                            ${t.equipo.map(e => `
+                                <div class="staff-tag ${e.clase}" ${e.clase === 'status-lejos' ? `onclick="window.open('${e.mapa}','_blank')"` : ""} style="cursor:pointer">
+                                    <i class="fas fa-user-clock"></i> ${e.nombre} <b>${e.horas}h</b>
+                                    <span class="debug-tag">${e.label}</span>
+                                </div>
+                            `).join("")}
+                            <button class="btn" style="color:var(--primary); background:rgba(99,102,241,0.1); border-radius:50%; width:30px; height:30px; padding:0; display:flex; align-items:center; justify-content:center;" onclick="prepararAddStaff('${t.id}')">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td><b style="color:var(--accent)">$${t.presupuesto}</b></td>
+                    <td><button class="btn" style="border:1px solid var(--accent); color:var(--accent); background:none;" onclick="cambiarEstatus('${t.id}')">DONE</button></td>
+                </tr>
+            `).join("");
+        } catch (err) { console.error(err); }
+    }
+
+    // --- ACCIONES FORMULARIO ---
+    function autoFillCliente() {
+        const name = document.getElementById('select_cliente').value;
+        const client = globalData.clients.find(c => c.name === name);
+        if(client) {
+            document.getElementById('direccion').value = client.address;
+            document.getElementById('notas_admin').value = client.notes;
+            document.getElementById('h_email_cliente').value = client.email;
+            document.getElementById('h_telefono_cliente').value = client.phone;
+            document.getElementById('h_servicio_cliente').value = client.service;
         }
-        tabla.innerHTML = rows.map(t => `
-            <tr>
-                <td><span style="color:var(--primary); font-weight:800;">#${t.id}</span><br><b>${t.cliente}</b></td>
-                <td>
-                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                        ${t.equipo.map(e => `
-                            <div class="staff-tag ${e.clase}" ${e.clase === 'status-lejos' ? `onclick="window.open('${e.mapa}','_blank')"` : ""} style="cursor:pointer">
-                                <i class="fas fa-user-clock"></i> ${e.nombre} <b>${e.horas}h</b>
-                                <span class="debug-tag">${e.label}</span>
-                            </div>
-                        `).join("")}
-                        <button class="btn" style="color:var(--primary); background:rgba(99,102,241,0.1); border-radius:50%; width:30px; height:30px; padding:0; display:flex; align-items:center; justify-content:center;" onclick="prepararAddStaff('${t.id}')">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
-                </td>
-                <td><b style="color:var(--accent)">$${t.presupuesto}</b></td>
-                <td><button class="btn" style="border:1px solid var(--accent); color:var(--accent); background:none;" onclick="cambiarEstatus('${t.id}')">DONE</button></td>
-            </tr>
-        `).join("");
-    } catch (err) { console.error(err); }
-}
+    }
+
     function autoFillWorker() {
         const w = globalData.users.find(x => x.name === document.getElementById('select_worker').value);
         if(w) document.getElementById('h_email_worker').value = w.email;
     }
-    function cerrarModales() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
-   function logout() {
-    // Borra TODO el rastro del navegador (adiós al Admin fantasma)
-    localStorage.clear();
-    sessionStorage.clear();
-    
-    // Limpia la variable en la memoria actual
-    if (typeof session !== 'undefined') session = null;
 
-    alert("Limpiando accesos... Por favor inicia sesión de nuevo.");
-    
-    // Recarga la página desde cero
-    location.reload();
-}
-    
-    // ... Las funciones de Payroll e Impresión se mantienen igual a tu código ...
-    
     async function guardarOrden() {
+        const btn = event.currentTarget;
+        const originalText = btn.innerHTML;
         const payload = {
-            action: 'CREATE_ORDER', 
+            action: 'CREATE_ORDER',
             id: document.getElementById('id_orden').value,
-            presupuesto: document.getElementById('presupuesto').value, 
+            presupuesto: document.getElementById('presupuesto').value,
             cliente: document.getElementById('select_cliente').value,
             direccion: document.getElementById('direccion').value,
-            description_admin: document.getElementById('notas_admin').value, 
+            notas_admin: document.getElementById('notas_admin').value,
             asignado_a: document.getElementById('select_worker').value,
+            email: document.getElementById('h_email_cliente').value,
+            telefono: document.getElementById('h_telefono_cliente').value,
+            servicio: document.getElementById('h_servicio_cliente').value,
             email_trabajador: document.getElementById('h_email_worker').value,
+            compania: session.compania 
+        };
+
+        if(!payload.cliente || !payload.asignado_a) return alert("Selecciona Cliente y Staff");
+
+        btn.disabled = true;
+        btn.innerHTML = 'GUARDANDO...';
+
+        try {
+            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+            const result = await res.text();
+            if (result.includes("SUCCESS")) {
+                alert("✅ ¡Éxito!");
+                location.reload();
+            } else {
+                alert("❌ " + result);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        } catch (e) { alert("Error de conexión"); btn.disabled = false; btn.innerHTML = originalText; }
+    }
+
+    function logout() {
+        localStorage.clear();
+        location.reload();
+    }
+    
+    function cerrarModales() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+
+    // --- FUNCIÓN PARA EL BOTÓN DONE ---
+    async function cambiarEstatus(idOrden) {
+        if (!confirm(`¿Estás seguro de marcar la orden #${idOrden} como TERMINADA?`)) return;
+
+        try {
+            const res = await fetch(`${URL_SCRIPT}?action=cambiar_estatus&id=${idOrden}`);
+            const data = await res.json();
+            if (data.success) {
+                alert("✅ Orden finalizada.");
+                cargarTabla(); // Recarga la tabla sin refrescar toda la página
+            } else {
+                alert("❌ No se pudo actualizar.");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error de conexión");
+        }
+    }
+
+    // --- FUNCIONES PARA ASIGNAR REFUERZO (MODAL) ---
+    function prepararAddStaff(idOrden) {
+        document.getElementById('modal_order_id').value = idOrden;
+        // Llenar el select del modal con los usuarios activos
+        const select = document.getElementById('modal_select_worker');
+        select.innerHTML = globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
+        document.getElementById('modalWorker').style.display = 'flex';
+    }
+
+    async function confirmarNuevoStaff() {
+        const idOrden = document.getElementById('modal_order_id').value;
+        const nombreWorker = document.getElementById('modal_select_worker').value;
+        const worker = globalData.users.find(u => u.name === nombreWorker);
+
+        // Necesitamos buscar los datos de la orden original para clonarla con el nuevo worker
+        const ordenOriginal = globalData.rawJobs.find(j => j.id === idOrden);
+
+        const payload = {
+            action: 'CREATE_ORDER',
+            id: idOrden,
+            presupuesto: ordenOriginal.presupuesto,
+            cliente: ordenOriginal.cliente,
+            direccion: ordenOriginal.direccion,
+            notas_admin: "Refuerzo asignado",
+            asignado_a: nombreWorker,
+            email_trabajador: worker.email,
             compania: session.compania
         };
-        // Cambié a fetch con POST para enviar el JSON
-        await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-        alert("Orden creada!");
-        location.reload();
+
+        try {
+            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+            const result = await res.text();
+            if (result.includes("SUCCESS")) {
+                alert("✅ Refuerzo asignado");
+                cerrarModales();
+                cargarTabla();
+            }
+        } catch (e) { alert("Error"); }
     }
 </script>
 </body>
