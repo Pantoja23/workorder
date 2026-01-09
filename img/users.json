@@ -1,0 +1,18 @@
+{
+  "users": [
+    {
+      "user": "jorge",
+      "pass": "1234",
+      "role": "admin",
+      "company": "Pantoja Tile",
+      "active": true
+    },
+    {
+      "user": "manager1",
+      "pass": "2222",
+      "role": "manager",
+      "company": "Pantoja Tile",
+      "active": true
+    }
+  ]
+}
