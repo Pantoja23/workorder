@@ -164,7 +164,7 @@
     <div id="receipt-area"></div>
 
 <script>
-    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwvIQeXB_mVc4yk4QMgJ1Oet7oDnEswqE6keywfvS6zy340GWaWjSg2wJSm6ruTGx3skA/exec"; 
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzsHc04Sgru2s-09kX7SZO0U-1r0r7kuLTy5UuaCAm72VN9eEBMVZZ1tKgZ6M9CpZQVZA/exec"; 
     let globalData = { clients: [], users: [], rawJobs: [] };
     let timerRef = 15;
 
@@ -306,30 +306,52 @@ function togglePass() {
         } catch (e) { console.error(e); }
     }
 
-    function switchCompany(newComp) {
-        session.compania = newComp;
-        localStorage.setItem('panto_session', JSON.stringify(session));
-        location.reload();
-    }
+    // 1. Switch corregido sin recarga total
+async function switchCompany(newComp) {
+    session.compania = newComp;
+    localStorage.setItem('panto_session', JSON.stringify(session));
+    
+    // Cambiamos el texto de bienvenida para confirmar el cambio
+    document.getElementById('txt_bienvenida').innerText = `${session.rol}: ${session.name} | ${session.compania}`;
+    
+    // Limpiamos visualmente mientras carga
+    document.getElementById('select_cliente').innerHTML = '<option>Filtrando clientes...</option>';
+    document.getElementById('select_worker').innerHTML = '<option>Filtrando staff...</option>';
+    
+    // Llamamos a las funciones de carga de datos sin refrescar la página
+    await cargarConfiguracion(); 
+    cargarTabla();
+}
 
-    // --- DATOS Y TABLA ---
-    async function cargarConfiguracion() {
-        try {
-            const resData = await fetch(`${URL_SCRIPT}?action=get_dropdowns&compania=${encodeURIComponent(session.compania)}&userRol=${session.rol}`);
-            const data = await resData.json();
-            globalData.clients = data.clients;
-            globalData.users = data.users;
+// 2. Configuración optimizada
+async function cargarConfiguracion() {
+    try {
+        // Traemos dropdowns filtrados por la compañía actual en la sesión
+        const resData = await fetch(`${URL_SCRIPT}?action=get_dropdowns&compania=${encodeURIComponent(session.compania)}&userRol=${session.rol}`);
+        const data = await resData.json();
+        
+        globalData.clients = data.clients;
+        globalData.users = data.users;
+        
+        // Pedimos el ID de orden específico para esta empresa
+        const resId = await fetch(`${URL_SCRIPT}?action=get_next_id&compania=${encodeURIComponent(session.compania)}`);
+        const nextId = await resId.text();
+        document.getElementById('id_orden').value = nextId.trim();
+        
+        // Llenamos los selects (Solo los que pertenecen a la compañía seleccionada)
+        document.getElementById('select_cliente').innerHTML = '<option value="">-- Cliente --</option>' + 
+            globalData.clients.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
             
-            // Busca esta parte dentro de cargarConfiguracion()
-const resId = await fetch(`${URL_SCRIPT}?action=get_next_id&compania=${encodeURIComponent(session.compania)}`);
-const nextId = await resId.text();
-document.getElementById('id_orden').value = nextId.trim();
-           
-                      document.getElementById('select_cliente').innerHTML = '<option value="">-- Cliente --</option>' + globalData.clients.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-            document.getElementById('select_worker').innerHTML = '<option value="">-- Staff --</option>' + globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
-            document.getElementById('pay_select_worker').innerHTML = '<option value="TODOS">-- TODOS --</option>' + globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
-        } catch(e) { console.error(e); }
+        document.getElementById('select_worker').innerHTML = '<option value="">-- Staff --</option>' + 
+            globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
+            
+        document.getElementById('pay_select_worker').innerHTML = '<option value="TODOS">-- TODOS --</option>' + 
+            globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
+            
+    } catch(e) { 
+        console.error("Error cargando configuración:", e); 
     }
+}
 
     async function cargarTabla() {
         try {
