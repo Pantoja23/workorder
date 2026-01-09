@@ -134,9 +134,77 @@
     <div id="receipt-area"></div>
 
 <script>
-    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxM0LGmOrIz7wr17ACNChjbOoNnrpYwVwriUvW5hEsIpvt99XrP7KouQbNym99S0dM1QQ/exec"; 
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbw-hNTN4UZLmfxH9FDgyFa5fOH-C6QGTuVQhrIheyDvXCh7Pf9iwAsdq2LoU_Tbj_N3ZA/exec"; 
     let globalData = { clients: [], users: [], rawJobs: [] };
     let timerRef = 15;
+/****************************
+ 🔐 LOGIN DESDE JSON (COMPLETO)
+*****************************/
+let USERS = [];
+let USERS_READY = false;
+
+async function loadUsers() {
+    try {
+        const res = await fetch("img/users.json");
+        const data = await res.json();
+        USERS = data.users || [];
+        USERS_READY = true;
+        console.log("✔ Users cargados:", USERS);
+    } catch (err) {
+        alert("❌ Error cargando img/users.json");
+        console.error(err);
+    }
+}
+
+function login() {
+    if (!USERS_READY) {
+        alert("Cargando usuarios, espera...");
+        return;
+    }
+
+    const u = document.getElementById("login_user").value.trim();
+    const p = document.getElementById("login_pass").value.trim();
+
+    const user = USERS.find(x =>
+        x.user === u &&
+        x.pass === p &&
+        x.active === true
+    );
+
+    if (!user) {
+        document.getElementById("login_error").style.display = "block";
+        return;
+    }
+
+    sessionStorage.setItem("auth", JSON.stringify({
+        user: user.user,
+        role: user.role,
+        company: user.company
+    }));
+
+    document.getElementById("loginScreen").style.display = "none";
+    applyRole(user.role);
+}
+
+function checkSession() {
+    const auth = sessionStorage.getItem("auth");
+    if (auth) {
+        document.getElementById("loginScreen").style.display = "none";
+        applyRole(JSON.parse(auth).role);
+    }
+}
+
+function applyRole(role) {
+    if (role !== "admin") {
+        document
+            .querySelectorAll(".btn-pay-global")
+            .forEach(b => b.remove());
+    }
+}
+
+// ⬇️ ESTAS DOS SIEMPRE AL FINAL
+loadUsers();
+checkSession();
 
     window.onload = () => {
         cargarConfiguracion();
