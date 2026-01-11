@@ -210,13 +210,33 @@ let timerRef = 15;
 let session = null;
     let masterCompanyData = {};
 
-window.onload = () => {
-    session = JSON.parse(localStorage.getItem('panto_session'));
-    if (session && session.success === true) {
-        actualizarLogo(session.compania);
-        initDashboard();
-    } else {
-        localStorage.removeItem('panto_session');
+window.onload = async () => {
+    const saved = localStorage.getItem('panto_session');
+    if (saved) {
+        session = JSON.parse(saved);
+        if (session && session.success === true) {
+            // 1. Ocultamos login y mostramos el panel principal
+            document.getElementById('view_login').classList.add('hidden');
+            document.getElementById('view_main').classList.remove('hidden');
+
+            // 2. Cargamos los colores de la tabla companies (para que el neón funcione)
+            await cargarConfiguracionEmpresaIndividual(); 
+
+            // 3. Si es MASTER, inicializamos sus herramientas
+            if (session.rol === "MASTER") {
+                await initMasterTools();
+            }
+
+            // 4. Activamos el logo, el nombre dinámico y el color neón
+            // Esto pondrá el nombre de la empresa del trabajador o del Master automáticamente
+            switchCompany(session.compania);
+
+            // 5. Arrancamos el dashboard y el timer
+            initDashboard();
+            iniciarTimerRefresh(); 
+        } else {
+            localStorage.removeItem('panto_session');
+        }
     }
 };
 
@@ -251,7 +271,7 @@ async function handleLogin() {
         const data = await res.json();
 
         if (data.success) {
-            const rolesAutorizados = ['Admin', 'Master', 'Supervisor'];
+            const rolesAutorizados = ['Admin', 'Master', 'Supervisor', 'Worker'];
             if (rolesAutorizados.includes(data.rol)) {
                 localStorage.setItem('panto_session', JSON.stringify(data));
                 setTimeout(() => { location.reload(); }, 500);
@@ -412,14 +432,17 @@ async function cargarTabla() {
                 }
             }
 
-            acc[curr.id].equipo[curr.asignado_a] = {
-                nombre: curr.asignado_a,
-                horas: curr.horas_acumuladas || 0,
-                estilo: `background-color: ${colorFondo};`,
-                clase: animacion,
-                label: `${textoGps} (${dIn !== null ? dIn : '?'})`,
-                mapa: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(colorFondo === "#ef4444" ? curr.add_in : curr.direccion)}`
-            };
+            let addressQuery = hasIn && dIn > 0.2 ? curr.add_in : curr.direccion;
+let mapaUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressQuery)}`;
+
+acc[curr.id].equipo[curr.asignado_a] = {
+    nombre: curr.asignado_a,
+    horas: curr.horas_acumuladas || 0,
+    estilo: `background-color: ${colorFondo};`,
+    clase: animacion,
+    label: `${textoGps} (${dIn !== null ? dIn : '?'})`,
+    mapa: mapaUrl // Usamos la URL corregida
+};
             return acc;
         }, {});
 
@@ -478,6 +501,22 @@ async function initMasterTools() {
         }
 
     } catch (e) { console.error("Error en MasterTools:", e); }
+}
+
+    // Esta función es necesaria para que el Worker también sepa qué color brillar
+async function cargarConfiguracionEmpresaIndividual() {
+    try {
+        const res = await fetch(`${URL_SCRIPT}?action=get_companies`);
+        const companies = await res.json();
+        
+        // Guardamos el objeto completo (nombre, color, direccion, tel, etc.)
+        companies.forEach(c => {
+            masterCompanyData[c.nombre] = c; 
+        });
+        console.log("Configuración completa de empresas cargada.");
+    } catch (e) { 
+        console.error("Error cargando configuración inicial:", e); 
+    }
 }
 
 // --- CARGAR CONFIGURACIÓN (DROPDOWNS) ---
@@ -654,6 +693,63 @@ function logout() {
 
 function cerrarModales() { 
     document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); 
+}
+    // Abre el modal y prepara los datos
+function prepararAddStaff(orderId) {
+    document.getElementById('modal_order_id').value = orderId;
+    
+    // Llenamos el select del modal con los usuarios que ya tenemos cargados
+    const select = document.getElementById('modal_select_worker');
+    if (globalData.users.length === 0) {
+        select.innerHTML = '<option>Cargando staff...</option>';
+    } else {
+        select.innerHTML = '<option value="">-- Seleccionar Refuerzo --</option>' + 
+            globalData.users.map(u => `<option value="${u.name}" data-email="${u.email}">${u.name}</option>`).join('');
+    }
+    
+    document.getElementById('modalWorker').style.display = 'flex';
+}
+
+// Envía la orden al servidor
+async function confirmarNuevoStaff() {
+    const orderId = document.getElementById('modal_order_id').value;
+    const select = document.getElementById('modal_select_worker');
+    const workerName = select.value;
+    const workerEmail = select.options[select.selectedIndex]?.getAttribute('data-email');
+
+    if (!workerName) return alert("Por favor, selecciona un trabajador.");
+
+    const btn = event.currentTarget;
+    btn.disabled = true;
+    btn.innerHTML = "ASIGNANDO...";
+
+    try {
+        const res = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'ADD_STAFF',
+                id: orderId,
+                asignado_a: workerName,
+                email_trabajador: workerEmail,
+                compania: session.compania
+            })
+        });
+        
+        const result = await res.text();
+        if (result.includes("SUCCESS")) {
+            alert("✅ Refuerzo asignado correctamente.");
+            cerrarModales();
+            cargarTabla(); // Recargamos la tabla para ver al nuevo trabajador
+        } else {
+            alert("Error: " + result);
+        }
+    } catch (e) {
+        console.error("Error:", e);
+        alert("Error de conexión al asignar staff.");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = "ASIGNAR";
+    }
 }
 
 // --- FINAL DEL SCRIPT ---
