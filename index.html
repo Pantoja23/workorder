@@ -7,20 +7,42 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { 
-            --primary: #6366f1; --bg: #070b14; --card: rgba(30, 41, 59, 0.7); 
-            --text: #f8fafc; --accent: #22c55e; --warning: #f59e0b; --danger: #ef4444; 
-            --neon-blue: #00c8ff; --neon-green: #00ff8c; --neon-red: #ff0055;
-        }
+        --primary: #6366f1; /* Este cambiará según la empresa */
+        --bg: #070b14; 
+        --card: rgba(30, 41, 59, 0.7); 
+        --text: #f8fafc; 
+        --accent: #22c55e; 
+        --warning: #f59e0b; 
+        --danger: #ef4444; 
+        --neon-blue: #00c8ff; 
+        --neon-green: #00ff8c; 
+        --neon-red: #ff0055;
+    }
 
-        body { 
-            font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; 
-            background-image: radial-gradient(circle at top right, #1e1b4b, #070b14); background-attachment: fixed; 
-        }
+    /* Solo aplicamos transición al color primario y resplandores */
+    header h2, .section-title, .btn-save, #master_switcher, .logo-main {
+        transition: color 0.6s ease, border-color 0.6s ease, filter 0.6s ease, box-shadow 0.6s ease;
+    }
+
+        /* Mantenemos tu fondo y estética intactos */
+    body { 
+        font-family: 'Inter', sans-serif; 
+        background: var(--bg); 
+        color: var(--text); 
+        margin: 0; 
+        padding: 15px; 
+        background-image: radial-gradient(circle at top right, #1e1b4b, #070b14); 
+        background-attachment: fixed; 
+    }
 
         .hidden { display: none !important; }
         .container { max-width: 1100px; margin: auto; padding-bottom: 50px; }
         header { text-align: center; margin: 15px 0; position: relative; }
-        .logo-main { height: 60px; filter: drop-shadow(0 0 10px var(--primary)); }
+        /* Efecto Neón para el Logo */
+    .logo-main { 
+        height: 60px; 
+        filter: drop-shadow(0 0 15px var(--primary)); 
+    }
         
         #refresh-timer { 
             position: absolute; right: 0; top: 0; background: rgba(99, 102, 241, 0.1); 
@@ -108,12 +130,17 @@
 
     <div id="view_main" class="container hidden">
         <header>
-            <div id="refresh-timer">Próximo refresh: <span id="secs">15</span>s</div>
-            <img src="img/logo.png" class="logo-main">
-            <h2 style="margin:0; letter-spacing: 4px; font-weight: 900;">PANTOJA <span style="color:var(--primary)">TILE</span></h2>
-            <small id="txt_bienvenida" style="color: var(--accent); font-weight: bold;"></small>
-            <button onclick="logout()" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 10px; font-weight: bold;">[ CERRAR SESIÓN ]</button>
-        </header>
+    <div id="refresh-timer">Próximo refresh: <span id="secs">15</span>s</div>
+    
+    <img src="img/logo.png" id="logo_empresa" class="logo-main">
+    
+    <h2 id="header_titulo" style="margin:0; letter-spacing: 2px; font-weight: 900; text-transform: uppercase;">
+        <span id="nombre_empresa_dinamico" style="color:var(--primary);">PANTOJA ADMIN</span>
+    </h2>
+
+    <small id="txt_bienvenida" style="color: var(--text); font-weight: bold; opacity: 0.7;"></small>
+    <button onclick="logout()" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 10px; font-weight: bold; display: block; margin: 5px auto;">[ CERRAR SESIÓN ]</button>
+</header>
 
         <div class="section-title">Registro de Orden</div>
         <div class="card">
@@ -181,6 +208,7 @@
 let globalData = { clients: [], users: [], rawJobs: [] };
 let timerRef = 15;
 let session = null;
+    let masterCompanyData = {};
 
 window.onload = () => {
     session = JSON.parse(localStorage.getItem('panto_session'));
@@ -277,15 +305,58 @@ function togglePass() {
     async function switchCompany(newComp) {
     session.compania = newComp;
     localStorage.setItem('panto_session', JSON.stringify(session));
-    actualizarLogo(newComp);
-    document.getElementById('txt_bienvenida').innerText = `${session.rol}: ${session.name} | ${session.compania}`;
     
+    // 1. Cambiamos el Color Neón
+    aplicarTemaEmpresa(newComp);
+    
+    // 2. Cambiamos el Logo (Ya corregido con carpeta img/)
+    actualizarLogo(newComp);
+    
+    // 3. Actualizamos el Nombre de la Empresa en el Título Grande
+    const txtEmpresa = document.getElementById('nombre_empresa_dinamico');
+    if (newComp === "TODAS") {
+        txtEmpresa.innerText = "PANTOJA ADMIN";
+    } else {
+        txtEmpresa.innerText = newComp; // Aquí saldrá "VMB Heating & Cooling", etc.
+    }
+
+    // 4. Actualizamos el saludo (Solo rol y nombre, sin la empresa para no repetir)
+    document.getElementById('txt_bienvenida').innerText = `${session.rol}: ${session.name}`;
+    
+    // 5. Lógica de datos
     if(newComp === "TODAS") {
         document.getElementById('select_cliente').innerHTML = '<option>Seleccione empresa fija</option>';
+        document.getElementById('id_orden').value = "---";
     } else {
         await cargarConfiguracion(); 
     }
-    cargarTabla();
+    
+    cargarTabla(); 
+}
+
+function aplicarTemaEmpresa(nombreComp) {
+    let colorNeon = (nombreComp === "TODAS") ? "#6366f1" : (masterCompanyData[nombreComp]?.color || "#6366f1");
+
+    document.documentElement.style.setProperty('--primary', colorNeon);
+    
+    // Aplicamos el resplandor neón al nombre de la empresa
+    const txtEmpresa = document.getElementById('nombre_empresa_dinamico');
+    if(txtEmpresa) {
+        txtEmpresa.style.textShadow = `0 0 10px ${colorNeon}, 0 0 20px ${colorNeon}`;
+    }
+}
+
+function actualizarLogo(nombreComp) {
+    const logoImg = document.getElementById('logo_empresa');
+    if (!logoImg) return;
+    
+    // CORRECCIÓN: Añadida la carpeta "img/" y la extensión
+    if (nombreComp === "TODAS") {
+        logoImg.src = "img/logo.png"; // Logo por defecto
+    } else {
+        // Ejemplo: img/VMB Heating & Cooling.png
+        logoImg.src = `img/${nombreComp}.png`;
+    }
 }
 
 async function cargarTabla() {
@@ -371,15 +442,16 @@ async function cargarTabla() {
         `).join("");
     } catch (err) { console.error(err); }
 }
-   // --- MASTER TOOLS ---
+   
+    // --- MASTER TOOLS ---
 async function initMasterTools() {
     const header = document.querySelector('header');
     if (!header || document.getElementById('master_switcher')) return;
 
     const selectorHTML = `
-        <div id="master_switcher" style="margin-top:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; border:1px solid var(--primary);">
-            <label style="font-size:10px; color:var(--primary); font-weight:bold;">MODO MASTER: SELECCIONAR EMPRESA</label>
-            <select id="master_company_select" onchange="switchCompany(this.value)" style="margin-top:5px; border-color:var(--primary); background: #070b14; color: white; width:100%;">
+        <div id="master_switcher" style="margin-top:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; border:1px solid var(--primary); transition: border-color 0.5s ease;">
+            <label id="lbl_master" style="font-size:10px; color:var(--primary); font-weight:bold; transition: color 0.5s ease;">MODO MASTER: SELECCIONAR EMPRESA</label>
+            <select id="master_company_select" onchange="switchCompany(this.value)" style="margin-top:5px; border-color:var(--primary); background: #070b14; color: white; width:100%; transition: border-color 0.5s ease;">
                 <option value="TODAS">-- TODAS LAS EMPRESAS --</option>
             </select>
         </div>
@@ -389,10 +461,22 @@ async function initMasterTools() {
     try {
         const res = await fetch(`${URL_SCRIPT}?action=get_companies&userRol=${session.rol}`);
         const companies = await res.json();
+        
+        // Guardamos colores y códigos en el objeto global
+        companies.forEach(c => {
+            masterCompanyData[c.nombre] = { color: c.color, codigo: c.codigo };
+        });
+
         const select = document.getElementById('master_company_select');
         let options = '<option value="TODAS">-- TODAS LAS EMPRESAS --</option>';
         options += companies.map(c => `<option value="${c.nombre}" ${c.nombre === session.compania ? 'selected' : ''}>${c.nombre}</option>`).join('');
         select.innerHTML = options;
+        
+        // Si al iniciar ya hay una empresa seleccionada, aplicamos su color
+        if(session.compania !== "TODAS") {
+            aplicarTemaEmpresa(session.compania);
+        }
+
     } catch (e) { console.error("Error en MasterTools:", e); }
 }
 
