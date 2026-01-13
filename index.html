@@ -7,42 +7,52 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { 
-        --primary: #6366f1; /* Este cambiará según la empresa */
-        --bg: #070b14; 
-        --card: rgba(30, 41, 59, 0.7); 
-        --text: #f8fafc; 
-        --accent: #22c55e; 
-        --warning: #f59e0b; 
-        --danger: #ef4444; 
-        --neon-blue: #00c8ff; 
-        --neon-green: #00ff8c; 
-        --neon-red: #ff0055;
-    }
+            --primary: #6366f1; 
+            --bg: #070b14; 
+            --card: rgba(30, 41, 59, 0.7); 
+            --text: #f8fafc; 
+            --accent: #22c55e; 
+            --warning: #f59e0b; 
+            --danger: #ef4444; 
+            --neon-blue: #00c8ff; 
+            --neon-green: #00ff8c; 
+            --neon-red: #ff0055;
+        }
 
-    /* Solo aplicamos transición al color primario y resplandores */
-    header h2, .section-title, .btn-save, #master_switcher, .logo-main {
-        transition: color 0.6s ease, border-color 0.6s ease, filter 0.6s ease, box-shadow 0.6s ease;
-    }
+        header h2, .section-title, .btn-save, #master_switcher, .logo-main {
+            transition: color 0.6s ease, border-color 0.6s ease, filter 0.6s ease, box-shadow 0.6s ease;
+        }
 
-        /* Mantenemos tu fondo y estética intactos */
-    body { 
-        font-family: 'Inter', sans-serif; 
-        background: var(--bg); 
-        color: var(--text); 
-        margin: 0; 
-        padding: 15px; 
-        background-image: radial-gradient(circle at top right, #1e1b4b, #070b14); 
-        background-attachment: fixed; 
-    }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 15px; 
+            background-image: radial-gradient(circle at top right, #1e1b4b, #070b14); 
+            background-attachment: fixed; 
+        }
 
         .hidden { display: none !important; }
         .container { max-width: 1100px; margin: auto; padding-bottom: 50px; }
         header { text-align: center; margin: 15px 0; position: relative; }
-        /* Efecto Neón para el Logo */
-    .logo-main { 
-        height: 60px; 
-        filter: drop-shadow(0 0 15px var(--primary)); 
-    }
+        
+        .logo-main { 
+            height: 60px; 
+            filter: drop-shadow(0 0 15px var(--primary)); 
+        }
+        
+        .auth-btn {
+            background: linear-gradient(45deg, #d4af37, #b8860b);
+            color: white;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+        }
         
         #refresh-timer { 
             position: absolute; right: 0; top: 0; background: rgba(99, 102, 241, 0.1); 
@@ -60,13 +70,10 @@
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
         .full { grid-column: span 2; }
         
-        /* Estatus de GPS y Trabajo */
         .status-ok { border: 2px solid var(--neon-green) !important; color: var(--neon-green) !important; box-shadow: 0 0 12px rgba(0, 255, 140, 0.3) !important; }
         .status-lejos { border: 2px solid var(--neon-red) !important; color: var(--neon-red) !important; box-shadow: 0 0 12px rgba(255, 0, 85, 0.3) !important; }
-        .status-terminado { border: 2px solid var(--neon-blue) !important; color: var(--neon-blue) !important; box-shadow: 0 0 12px rgba(0, 200, 255, 0.3) !important; }
 
         .staff-tag { padding: 8px 12px; border-radius: 12px; margin: 4px; display: inline-block; font-size: 12px; font-weight: bold; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
-        .debug-tag { font-size: 9px; display: block; opacity: 0.8; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 3px; }
 
         input, select, textarea { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #334155; background: rgba(15, 23, 42, 0.8); color: white; font-size: 14px; box-sizing: border-box; outline: none; }
         .table-container { background: var(--card); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); overflow-x: auto; margin-top: 10px; }
@@ -75,33 +82,27 @@
         td { padding: 18px; border-top: 1px solid rgba(255,255,255,0.05); }
 
         .btn { padding: 10px 16px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; font-size: 12px; }
-        .btn:active { transform: scale(0.95); }
         .btn-save { background: var(--primary); color: white; width: 100%; margin-top: 15px; justify-content: center; }
         .btn-pay-global { background: var(--warning); color: #000; }
+        .done-btn { background: var(--accent); color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .add-btn { background: var(--primary); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; }
         
         .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; align-items:center; justify-content:center; backdrop-filter: blur(5px); }
 
-        /* Login Simple */
         #view_login { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
 
-        #receipt-area { display: none; }
+        @keyframes parpadeo-alerta {
+          0% { transform: scale(1); box-shadow: 0 0 5px #ef4444; }
+          50% { transform: scale(1.05); box-shadow: 0 0 15px #ef4444; }
+          100% { transform: scale(1); box-shadow: 0 0 5px #ef4444; }
+        }
+        .alerta-roja { animation: parpadeo-alerta 1s infinite; border: 2px solid white !important; }
+
         @media print {
             body * { visibility: hidden; }
             #receipt-area, #receipt-area * { visibility: visible; }
-            #receipt-area { position: absolute; left: 0; top: 0; width: 100%; display: block !important; background: white; padding: 20px; color: black; }
-            .receipt-box { border: 2px solid #000; padding: 20px; margin-bottom: 20px; page-break-inside: avoid; }
+            #receipt-area { position: absolute; left: 0; top: 0; width: 100%; display: block !important; }
         }
-@keyframes parpadeo-alerta {
-  0% { transform: scale(1); box-shadow: 0 0 5px #ef4444; }
-  50% { transform: scale(1.05); box-shadow: 0 0 15px #ef4444; }
-  100% { transform: scale(1); box-shadow: 0 0 5px #ef4444; }
-}
-
-.alerta-roja {
-  animation: parpadeo-alerta 1s infinite;
-  border: 2px solid white !important;
-}
-        
     </style>
 </head>
 <body>
@@ -110,37 +111,28 @@
         <div class="card" style="width: 300px; text-align: center;">
             <img src="img/logo.png" style="width: 80px; margin-bottom: 10px; filter: drop-shadow(0 0 10px var(--primary));">
             <h2 style="letter-spacing: 2px;">PANTOJA <span style="color:var(--primary)">ADMIN</span></h2>
-            
             <input type="text" id="login_email" placeholder="Usuario / Email" style="margin-bottom: 10px; width: 100%;">
-            
-            <div style="position: relative; width: 100%; margin-bottom: 5px;">
-                <input type="password" id="login_pass" placeholder="Contraseña" style="width: 100%; padding-right: 40px; margin-bottom: 0;">
+            <div style="position: relative; width: 100%; margin-bottom: 15px;">
+                <input type="password" id="login_pass" placeholder="Contraseña" style="width: 100%; padding-right: 40px;">
                 <span onclick="togglePass()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--primary);">
                     <i id="eye_icon" class="fas fa-eye"></i>
                 </span>
             </div>
-
-            <div id="debug_info" style="font-size: 10px; color: #666; margin-bottom: 15px; text-align: left; font-family: monospace; min-height: 12px; padding-left: 5px;"></div>
-
             <button onclick="handleLogin()" class="btn btn-save" style="width: 100%;">ACCEDER AL PANEL</button>
-            
             <div id="msg_login" style="font-size: 11px; margin-top: 10px; font-weight: bold;"></div>
         </div>
     </div>
 
     <div id="view_main" class="container hidden">
         <header>
-    <div id="refresh-timer">Próximo refresh: <span id="secs">15</span>s</div>
-    
-    <img src="img/logo.png" id="logo_empresa" class="logo-main">
-    
-    <h2 id="header_titulo" style="margin:0; letter-spacing: 2px; font-weight: 900; text-transform: uppercase;">
-        <span id="nombre_empresa_dinamico" style="color:var(--primary);">PANTOJA ADMIN</span>
-    </h2>
-
-    <small id="txt_bienvenida" style="color: var(--text); font-weight: bold; opacity: 0.7;"></small>
-    <button onclick="logout()" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 10px; font-weight: bold; display: block; margin: 5px auto;">[ CERRAR SESIÓN ]</button>
-</header>
+            <div id="refresh-timer">Próximo refresh: <span id="secs">15</span>s</div>
+            <img src="img/logo.png" id="logo_empresa" class="logo-main">
+            <h2 id="header_titulo" style="margin:0; letter-spacing: 2px; font-weight: 900; text-transform: uppercase;">
+                <span id="nombre_empresa_dinamico" style="color:var(--primary);">PANTOJA ADMIN</span>
+            </h2>
+            <small id="txt_bienvenida" style="color: var(--text); font-weight: bold; opacity: 0.7;"></small>
+            <button onclick="logout()" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 10px; font-weight: bold; display: block; margin: 5px auto;">[ CERRAR SESIÓN ]</button>
+        </header>
 
         <div class="section-title">Registro de Orden</div>
         <div class="card">
@@ -153,7 +145,10 @@
                 <div class="full"><label>NOTAS ADMIN</label><textarea id="notas_admin" rows="2"></textarea></div>
             </div>
             <button class="btn btn-save" onclick="guardarOrden()"><i class="fas fa-plus-circle"></i> CREAR PROYECTO</button>
-            <input type="hidden" id="h_email_cliente"><input type="hidden" id="h_telefono_cliente"><input type="hidden" id="h_servicio_cliente"><input type="hidden" id="h_email_worker">
+            <input type="hidden" id="h_email_cliente">
+            <input type="hidden" id="h_telefono_cliente">
+            <input type="hidden" id="h_servicio_cliente">
+            <input type="hidden" id="h_email_worker">
         </div>
 
         <div class="section-title">
@@ -164,7 +159,6 @@
         <div id="dashboard_conteo" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; margin-bottom: 20px;"></div>
         
         <div class="table-container">
-            
             <table>
                 <thead>
                     <tr><th>Proyecto / Cliente</th><th>Equipo & GPS Status</th><th>Finanzas</th><th>Acciones</th></tr>
@@ -202,360 +196,213 @@
         </div>
     </div>
 
-    
 <script>
-   const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbz6RlOsPpJvLKcMktV8a4QTiUTKaSgvIfj6RVeDqj9j3R2VlVYQdwuO6i86Xyacq8Gl/exec"; 
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxg9UUVKYDQXBBWPH_vCb8rQV1zcXOBfT5NH-5YqBilqG8YRrrSM0HlAnApQWglRMaE/exec"; 
 let globalData = { clients: [], users: [], rawJobs: [] };
 let timerRef = 15;
 let session = null;
-    let masterCompanyData = {};
+let masterCompanyData = {};
 
 window.onload = async () => {
     const saved = localStorage.getItem('panto_session');
     if (saved) {
         session = JSON.parse(saved);
-        if (session && session.success === true) {
-            // 1. Ocultamos login y mostramos el panel principal
+        if (session && session.success) {
             document.getElementById('view_login').classList.add('hidden');
             document.getElementById('view_main').classList.remove('hidden');
-
-            // 2. Cargamos los colores de la tabla companies (para que el neón funcione)
+            
+            // PRIMERO cargamos las empresas para tener los colores y datos
             await cargarConfiguracionEmpresaIndividual(); 
-
-            // 3. Si es MASTER, inicializamos sus herramientas
-            if (session.rol === "MASTER") {
-                await initMasterTools();
-            }
-
-            // 4. Activamos el logo, el nombre dinámico y el color neón
-            // Esto pondrá el nombre de la empresa del trabajador o del Master automáticamente
+            
+            // LUEGO inicializamos herramientas de Master si aplica
+            if (["Master", "Supervisor", "Admin", "LandLord", "Trabajador"].includes(session.rol)) {
+    await initMasterTools();
+}
+            
+            // FINALMENTE mostramos los datos del usuario
+            document.getElementById('txt_bienvenida').innerText = `${session.rol}: ${session.name}`;
             switchCompany(session.compania);
-
-            // 5. Arrancamos el dashboard y el timer
             initDashboard();
-            iniciarTimerRefresh(); 
-        } else {
-            localStorage.removeItem('panto_session');
         }
     }
 };
 
-function actualizarLogo(nombreCompania) {
-    const logoImg = document.getElementById('logo_empresa');
-    if(!logoImg) return;
-    const nombreLimpio = nombreCompania ? nombreCompania.trim().toUpperCase() : "";
-    const rutaLogo = nombreLimpio ? `img/${nombreLimpio}.png` : 'img/default_logo.png';
-    logoImg.onerror = function() { this.src = 'img/logo_app_generico.png'; };
-    logoImg.src = rutaLogo;
-}
-
 async function handleLogin() {
-    const emailInput = document.getElementById('login_email');
-    const passInput = document.getElementById('login_pass');
+    const email = document.getElementById('login_email').value.trim();
+    const pass = document.getElementById('login_pass').value.trim();
     const msg = document.getElementById('msg_login');
-    const debug = document.getElementById('debug_info');
-    const btn = document.querySelector('button[onclick="handleLogin()"]');
-
-    if (msg) msg.innerText = "";
-    const email = emailInput.value.trim();
-    const pass = passInput.value.trim();
     if (!email || !pass) return alert("Completa los datos");
 
-    msg.innerText = "Verificando credenciales...";
-    msg.style.color = "var(--primary)";
-    if (btn) btn.disabled = true;
-    
+    msg.innerText = "Verificando...";
     try {
-        const url = `${URL_SCRIPT}?action=login_staff&email=${encodeURIComponent(email)}&pass=${encodeURIComponent(pass)}&t=${Date.now()}`;
-        const res = await fetch(url);
+        const res = await fetch(`${URL_SCRIPT}?action=login_staff&email=${encodeURIComponent(email)}&pass=${encodeURIComponent(pass)}&t=${Date.now()}`);
         const data = await res.json();
-
         if (data.success) {
-            const rolesAutorizados = ['Admin', 'Master', 'Supervisor', 'Worker'];
-            if (rolesAutorizados.includes(data.rol)) {
-                localStorage.setItem('panto_session', JSON.stringify(data));
-                setTimeout(() => { location.reload(); }, 500);
-            } else {
-                msg.innerText = "Acceso restringido: " + data.rol;
-                msg.style.color = "orange";
-                if (btn) btn.disabled = false;
-            }
+            localStorage.setItem('panto_session', JSON.stringify(data));
+            location.reload();
         } else {
-            msg.innerText = data.msg || "Credenciales incorrectas";
-            msg.style.color = "red";
-            if (btn) btn.disabled = false;
+            msg.innerText = data.msg || "Error";
         }
-    } catch(e) { 
-        msg.innerText = "Error de conexión";
-        if (btn) btn.disabled = false;
-    }
+    } catch(e) { msg.innerText = "Error de conexión"; }
 }
 
 function togglePass() {
-    const passInput = document.getElementById('login_pass');
-    const eyeIcon = document.getElementById('eye_icon');
-    if (passInput.type === "password") {
-        passInput.type = "text";
-        eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
-    } else {
-        passInput.type = "password";
-        eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
-    }
+    const p = document.getElementById('login_pass');
+    const i = document.getElementById('eye_icon');
+    p.type = p.type === "password" ? "text" : "password";
+    i.classList.toggle('fa-eye'); i.classList.toggle('fa-eye-slash');
 }
-    async function initDashboard() {
-    document.getElementById('view_login').classList.add('hidden');
-    document.getElementById('view_main').classList.remove('hidden');
-    document.getElementById('txt_bienvenida').innerText = `${session.rol}: ${session.name} | ${session.compania}`;
-    
-    if(session.rol === 'Master' || session.compania === 'TODAS') {
-        await initMasterTools();
-    }
+
+function initDashboard() {
+    document.getElementById('txt_bienvenida').innerText = `${session.rol}: ${session.name}`;
     cargarConfiguracion();
     cargarTabla();
-    
-    if (window.miReloj) clearInterval(window.miReloj);
-    window.miReloj = setInterval(() => {
+    setInterval(() => {
         timerRef--;
-        const spanSecs = document.getElementById('secs');
-        if(spanSecs) spanSecs.innerText = timerRef;
+        if(document.getElementById('secs')) document.getElementById('secs').innerText = timerRef;
         if(timerRef <= 0) { timerRef = 15; cargarTabla(); }
     }, 1000);
 }
- 
-    async function switchCompany(newComp) {
+
+async function switchCompany(newComp) {
     session.compania = newComp;
     localStorage.setItem('panto_session', JSON.stringify(session));
-    
-    // 1. Cambiamos el Color Neón
     aplicarTemaEmpresa(newComp);
-    
-    // 2. Cambiamos el Logo (Ya corregido con carpeta img/)
-    actualizarLogo(newComp);
-    
-    // 3. Actualizamos el Nombre de la Empresa en el Título Grande
     const txtEmpresa = document.getElementById('nombre_empresa_dinamico');
-    if (newComp === "TODAS") {
-        txtEmpresa.innerText = "PANTOJA ADMIN";
-    } else {
-        txtEmpresa.innerText = newComp; // Aquí saldrá "VMB Heating & Cooling", etc.
-    }
-
-    // 4. Actualizamos el saludo (Solo rol y nombre, sin la empresa para no repetir)
-    document.getElementById('txt_bienvenida').innerText = `${session.rol}: ${session.name}`;
-    
-    // 5. Lógica de datos
-    if(newComp === "TODAS") {
-        document.getElementById('select_cliente').innerHTML = '<option>Seleccione empresa fija</option>';
-        document.getElementById('id_orden').value = "---";
-    } else {
-        await cargarConfiguracion(); 
-    }
-    
-    cargarTabla(); 
+    if(txtEmpresa) txtEmpresa.innerText = newComp === "TODAS" ? "PANTOJA ADMIN" : newComp;
+    document.getElementById('logo_empresa').src = `img/${newComp}.png`;
+    cargarTabla();
 }
 
 function aplicarTemaEmpresa(nombreComp) {
-    let colorNeon = (nombreComp === "TODAS") ? "#6366f1" : (masterCompanyData[nombreComp]?.color || "#6366f1");
-
-    document.documentElement.style.setProperty('--primary', colorNeon);
-    
-    // Aplicamos el resplandor neón al nombre de la empresa
-    const txtEmpresa = document.getElementById('nombre_empresa_dinamico');
-    if(txtEmpresa) {
-        txtEmpresa.style.textShadow = `0 0 10px ${colorNeon}, 0 0 20px ${colorNeon}`;
-    }
-}
-
-function actualizarLogo(nombreComp) {
-    const logoImg = document.getElementById('logo_empresa');
-    if (!logoImg) return;
-    
-    // CORRECCIÓN: Añadida la carpeta "img/" y la extensión
-    if (nombreComp === "TODAS") {
-        logoImg.src = "img/logo.png"; // Logo por defecto
-    } else {
-        // Ejemplo: img/VMB Heating & Cooling.png
-        logoImg.src = `img/${nombreComp}.png`;
-    }
+    let color = (masterCompanyData[nombreComp]?.color) || "#6366f1";
+    document.documentElement.style.setProperty('--primary', color);
 }
 
 async function cargarTabla() {
     try {
-        let compBusqueda = session.compania;
-        const res = await fetch(`${URL_SCRIPT}?action=get_active_jobs&userCompania=${encodeURIComponent(compBusqueda)}&userRol=${session.rol}&t=${Date.now()}`);
+        // Añadimos userEmail=${encodeURIComponent(session.email)} a la URL
+        const res = await fetch(`${URL_SCRIPT}?action=get_active_jobs&userCompania=${encodeURIComponent(session.compania)}&userRol=${session.rol}&userEmail=${encodeURIComponent(session.email)}&t=${Date.now()}`);
         const trabajos = await res.json();
-        globalData.rawJobs = trabajos; 
+        globalData.rawJobs = trabajos;
 
         const dashboard = document.getElementById("dashboard_conteo");
         if (dashboard && trabajos.length > 0) {
-            const conteos = trabajos.reduce((acc, c) => {
-                acc[c.compania] = (acc[c.compania] || 0) + 1;
-                return acc;
-            }, {});
+            const conteos = trabajos.reduce((acc, c) => { acc[c.compania] = (acc[c.compania] || 0) + 1; return acc; }, {});
             dashboard.innerHTML = Object.entries(conteos).map(([comp, cant]) => `
-                <div onclick="switchCompany('${comp}')" class="dash-card">
-                    <div class="dash-comp">${comp}</div>
-                    <div class="dash-cant">${cant} <small>Jobs</small></div>
-                </div>
-            `).join("");
-        }
-
-        const tabla = document.getElementById("lista_trabajos");
-        if (!trabajos || trabajos.length === 0) {
-            tabla.innerHTML = `<tr><td colspan="4" align="center" class="no-data">No hay proyectos activos</td></tr>`;
-            return;
+                <div onclick="switchCompany('${comp}')" style="cursor:pointer; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; border:1px solid var(--primary);">
+                    <div style="font-size:10px;">${comp}</div>
+                    <div style="font-weight:bold;">${cant} Jobs</div>
+                </div>`).join("");
         }
 
         const agrupados = trabajos.reduce((acc, curr) => {
             if (!acc[curr.id]) {
-                acc[curr.id] = { id: curr.id, cliente: curr.cliente, presupuesto: curr.presupuesto, equipo: {}, compania: curr.compania, direccion: curr.direccion };
+                acc[curr.id] = { id: curr.id, cliente: curr.cliente, presupuesto: curr.presupuesto, equipo: {}, compania: curr.compania, direccion: curr.direccion, status: curr.status };
             }
-            
             const cleanDist = (val) => {
                 if (!val || val === "undefined") return null;
                 let m = String(val).match(/[\d.]+/);
                 return m ? parseFloat(m[0]) : null;
             };
-
-            let dIn = cleanDist(curr.gps_in_dist || curr.gps_in);
-            let hasIn = curr.add_in && String(curr.add_in).length > 2;
-            let hasOut = curr.add_out && String(curr.add_out).length > 2;
-            let colorFondo = "#374151"; let textoGps = "No Log"; let animacion = "";
-
+            let dIn = cleanDist(curr.gps_in_dist);
+            let hasIn = curr.add_in && curr.add_in.length > 2;
+            let hasOut = curr.add_out && curr.add_out.length > 2;
+            let color = "#374151"; let txt = "No Log"; let anim = "";
             if (hasIn) {
-                if (hasOut) {
-                    colorFondo = (dIn !== null && dIn <= 0.2) ? "#2563eb" : "#f97316";
-                    textoGps = (colorFondo === "#2563eb") ? "P-COMPLET" : "GPS-WARN";
-                } else {
-                    if (dIn !== null && dIn <= 0.2) { colorFondo = "#10b981"; textoGps = "IN-SITE"; }
-                    else { colorFondo = "#ef4444"; textoGps = "OUT-SITE"; animacion = "alerta-roja"; }
-                }
+                if (hasOut) { color = (dIn <= 0.2) ? "#2563eb" : "#f97316"; txt = "DONE"; }
+                else { color = (dIn <= 0.2) ? "#10b981" : "#ef4444"; txt = (dIn <= 0.2) ? "IN-SITE" : "OUT-SITE"; if(dIn>0.2) anim="alerta-roja"; }
             }
-
-            let addressQuery = hasIn && dIn > 0.2 ? curr.add_in : curr.direccion;
-let mapaUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressQuery)}`;
-
-acc[curr.id].equipo[curr.asignado_a] = {
-    nombre: curr.asignado_a,
-    horas: curr.horas_acumuladas || 0,
-    estilo: `background-color: ${colorFondo};`,
-    clase: animacion,
-    label: `${textoGps} (${dIn !== null ? dIn : '?'})`,
-    mapa: mapaUrl // Usamos la URL corregida
-};
+            
+            // CORRECCIÓN AQUÍ: Se eliminó la llave extra y se cerró correctamente el objeto
+            acc[curr.id].equipo[curr.asignado_a] = { 
+                nombre: curr.asignado_a, 
+                horas: curr.horas_acumuladas || 0, 
+                estilo: `background-color: ${color};`, 
+                clase: anim, 
+                label: `${txt} (${dIn ?? '?'})`, 
+                mapa: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(curr.direccion)
+            };
             return acc;
         }, {});
 
-        tabla.innerHTML = Object.values(agrupados).map(t => `
-            <tr>
-                <td><b>#${t.id}</b><br><span class="badge">${t.compania}</span><br>${t.cliente}</td>
+        const tabla = document.getElementById("lista_trabajos");
+        tabla.innerHTML = Object.values(agrupados).map(t => {
+            let botonAccion = "";
+            if (t.status === "ON APPROVAL") {
+                if (["LandLord", "Admin", "Master"].includes(session.rol)) {
+                    botonAccion = `<button class="auth-btn" onclick="cambiarEstatus('${t.id}', 'Active')">AUTHORIZE</button>`;
+                } else {
+                    botonAccion = `<span style="color:var(--warning); font-size:10px; font-weight:bold;">AWAITING...</span>`;
+                }
+            } else {
+                botonAccion = `<button class="done-btn" onclick="cambiarEstatus('${t.id}', 'Done')">DONE</button>`;
+            }
+
+            return `<tr>
+                <td><b>#${t.id}</b><br><span style="font-size:10px; color:var(--primary)">${t.compania}</span><br>${t.cliente}</td>
                 <td>
-                    <div class="team-flex">
-                        ${Object.values(t.equipo).map(e => `
-                            <div class="staff-tag ${e.clase}" style="${e.estilo}" onclick="window.open('${e.mapa}','_blank')">
-                                ${e.nombre}<br><small>${e.label} | ${e.horas}h</small>
-                            </div>
-                        `).join("")}
+                    <div style="display:flex; flex-wrap:wrap; gap:5px;">
+                        ${Object.values(t.equipo).map(e => `<div class="staff-tag ${e.clase}" style="${e.estilo}" onclick="window.open('${e.mapa}')">${e.nombre}<br><small>${e.label} | ${e.horas}h</small></div>`).join("")}
                         <button class="add-btn" onclick="prepararAddStaff('${t.id}')">+</button>
                     </div>
                 </td>
-                <td class="price">$${t.presupuesto}</td>
-                <td><button class="done-btn" onclick="cambiarEstatus('${t.id}')">DONE</button></td>
-            </tr>
-        `).join("");
-    } catch (err) { console.error(err); }
-}
-   
-    // --- MASTER TOOLS ---
-async function initMasterTools() {
-    const header = document.querySelector('header');
-    if (!header || document.getElementById('master_switcher')) return;
-
-    const selectorHTML = `
-        <div id="master_switcher" style="margin-top:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; border:1px solid var(--primary); transition: border-color 0.5s ease;">
-            <label id="lbl_master" style="font-size:10px; color:var(--primary); font-weight:bold; transition: color 0.5s ease;">MODO MASTER: SELECCIONAR EMPRESA</label>
-            <select id="master_company_select" onchange="switchCompany(this.value)" style="margin-top:5px; border-color:var(--primary); background: #070b14; color: white; width:100%; transition: border-color 0.5s ease;">
-                <option value="TODAS">-- TODAS LAS EMPRESAS --</option>
-            </select>
-        </div>
-    `;
-    header.insertAdjacentHTML('beforeend', selectorHTML);
-
-    try {
-        const res = await fetch(`${URL_SCRIPT}?action=get_companies&userRol=${session.rol}`);
-        const companies = await res.json();
-        
-        // Guardamos colores y códigos en el objeto global
-        companies.forEach(c => {
-            masterCompanyData[c.nombre] = { color: c.color, codigo: c.codigo };
-        });
-
-        const select = document.getElementById('master_company_select');
-        let options = '<option value="TODAS">-- TODAS LAS EMPRESAS --</option>';
-        options += companies.map(c => `<option value="${c.nombre}" ${c.nombre === session.compania ? 'selected' : ''}>${c.nombre}</option>`).join('');
-        select.innerHTML = options;
-        
-        // Si al iniciar ya hay una empresa seleccionada, aplicamos su color
-        if(session.compania !== "TODAS") {
-            aplicarTemaEmpresa(session.compania);
-        }
-
-    } catch (e) { console.error("Error en MasterTools:", e); }
-}
-
-    // Esta función es necesaria para que el Worker también sepa qué color brillar
-async function cargarConfiguracionEmpresaIndividual() {
-    try {
-        const res = await fetch(`${URL_SCRIPT}?action=get_companies`);
-        const companies = await res.json();
-        
-        // Guardamos el objeto completo (nombre, color, direccion, tel, etc.)
-        companies.forEach(c => {
-            masterCompanyData[c.nombre] = c; 
-        });
-        console.log("Configuración completa de empresas cargada.");
+                <td style="font-weight:bold; color:var(--accent)">$${t.presupuesto}</td>
+                <td>${botonAccion}</td>
+            </tr>`;
+        }).join("");
     } catch (e) { 
-        console.error("Error cargando configuración inicial:", e); 
+        console.error("Error en cargarTabla:", e); 
     }
 }
 
-// --- CARGAR CONFIGURACIÓN (DROPDOWNS) ---
 async function cargarConfiguracion() {
     try {
-        const resData = await fetch(`${URL_SCRIPT}?action=get_dropdowns&compania=${encodeURIComponent(session.compania)}&userRol=${session.rol}`);
-        const data = await resData.json();
+        // Le pasamos el ROL al servidor para que sepa si darnos clientes o no
+        const res = await fetch(`${URL_SCRIPT}?action=get_dropdowns&compania=${encodeURIComponent(session.compania)}&rol=${session.rol}`);
+        const data = await res.json();
         
-        globalData.clients = data.clients;
-        globalData.users = data.users;
-        
-        const resId = await fetch(`${URL_SCRIPT}?action=get_next_id&compania=${encodeURIComponent(session.compania)}`);
-        const nextId = await resId.text();
-        document.getElementById('id_orden').value = nextId.trim();
-        
-        document.getElementById('select_cliente').innerHTML = '<option value="">-- Cliente --</option>' + 
-            globalData.clients.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-            
-        document.getElementById('select_worker').innerHTML = '<option value="">-- Staff --</option>' + 
+        globalData.clients = data.clients || [];
+        globalData.users = data.users || [];
+
+        const selectCliente = document.getElementById('select_cliente');
+        const selectWorker = document.getElementById('select_worker');
+
+        // LÓGICA DE CLIENTES: Si es LandLord, lo dejamos vacío inicialmente (se llenará al autorizar)
+        if (session.rol === "LandLord") {
+            selectCliente.innerHTML = '<option value="">-- Bloqueado para Autorizar --</option>';
+        } else {
+            selectCliente.innerHTML = '<option value="">-- Cliente --</option>' + 
+                globalData.clients.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+        }
+
+        // LÓGICA DE STAFF: Llenamos a todos, pero LandLord usará a Jorge
+        selectWorker.innerHTML = '<option value="">-- Staff --</option>' + 
             globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
-            
-        document.getElementById('pay_select_worker').innerHTML = '<option value="TODOS">-- TODOS --</option>' + 
-            globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
-            
-    } catch(e) { console.error("Error cargando configuración:", e); }
+
+        // Dropdown de nómina (Pay)
+        const payWorker = document.getElementById('pay_select_worker');
+        if(payWorker) {
+            payWorker.innerHTML = '<option value="TODOS">-- TODOS --</option>' + 
+                globalData.users.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
+        }
+
+        // ID de Orden (Solo si no es LandLord, porque el LandLord usa el ID de la tabla)
+        if (session.rol !== "LandLord") {
+            const resId = await fetch(`${URL_SCRIPT}?action=get_next_id&compania=${encodeURIComponent(session.compania)}`);
+            document.getElementById('id_orden').value = (await resId.text()).trim();
+        }
+    } catch(e) { console.error("Error en configuración:", e); }
 }
 
 function autoFillCliente() {
-    const name = document.getElementById('select_cliente').value;
-    const client = globalData.clients.find(c => c.name === name);
-    if(client) {
-        document.getElementById('direccion').value = client.address || ""; // Viene de Mensaje (Col G)
-        document.getElementById('notas_admin').value = client.notes || "";   // Viene de Col J
-        document.getElementById('h_email_cliente').value = client.email || ""; // Viene de Col E
-        document.getElementById('h_telefono_cliente').value = client.phone || ""; // Viene de Col D
-        document.getElementById('h_servicio_cliente').value = client.service || ""; // Viene de Col F
-        
-        // Si tienes un campo para el presupuesto o descuento, podrías usar client.discount
-        console.log("Descuento aplicable:", client.discount);
+    const c = globalData.clients.find(x => x.name === document.getElementById('select_cliente').value);
+    if(c) {
+        document.getElementById('direccion').value = c.address || "";
+        document.getElementById('notas_admin').value = c.notes || "";
+        document.getElementById('h_email_cliente').value = c.email || "";
+        document.getElementById('h_telefono_cliente').value = c.phone || "";
+        document.getElementById('h_servicio_cliente').value = c.service || "";
     }
 }
 
@@ -566,194 +413,204 @@ function autoFillWorker() {
 
 async function guardarOrden() {
     const btn = event.currentTarget;
-    const originalText = btn.innerHTML;
+    
+    // Capturamos los valores directamente del elemento, no importa si está disabled
+    const id = document.getElementById('id_orden').value;
+    const presupuesto = document.getElementById('presupuesto').value;
+    const cliente = document.getElementById('select_cliente').value;
+    const worker = document.getElementById('select_worker').value;
+
+    // VALIDACIÓN "ANTI-ERROR"
+    if (!presupuesto || parseFloat(presupuesto) <= 0) {
+        alert("¡Error! Debes ingresar un monto de presupuesto.");
+        return;
+    }
+
+    // Si cliente o worker vienen vacíos (por el bloqueo), los rescatamos
+    if (!cliente || !worker) {
+        alert("Faltan datos críticos: Cliente o Staff. Intente seleccionar la orden de nuevo.");
+        return;
+    }
+
     const payload = {
-        action: 'CREATE_ORDER',
-        id: document.getElementById('id_orden').value,
-        status: 'Active',
-        presupuesto: document.getElementById('presupuesto').value,
-        cliente: document.getElementById('select_cliente').value,
+        action: 'UPDATE_OR_CREATE_ORDER', 
+        id: id,
+        status: 'ACTIVE',
+        presupuesto: presupuesto,
+        cliente: cliente,
         direccion: document.getElementById('direccion').value,
         notas_admin: document.getElementById('notas_admin').value,
-        asignado_a: document.getElementById('select_worker').value,
+        asignado_a: worker,
         email_cliente: document.getElementById('h_email_cliente').value,
         telefono: document.getElementById('h_telefono_cliente').value,
         servicio: document.getElementById('h_servicio_cliente').value,
         email_trabajador: document.getElementById('h_email_worker').value,
-        compania: session.compania 
+        compania: session.compania
     };
 
-    if(!payload.cliente || !payload.asignado_a) return alert("Selecciona Cliente y Staff");
-
     btn.disabled = true;
-    btn.innerHTML = 'GUARDANDO...';
+    btn.innerText = "Autorizando Proyecto...";
 
     try {
-        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-        const result = await res.text();
-        if (result.includes("SUCCESS")) {
-            alert("✅ ¡Orden Creada!");
-            location.reload();
+        // Quitamos no-cors para ver errores reales si ocurren
+        const res = await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            body: JSON.stringify(payload) 
+        });
+
+        const texto = await res.text();
+        
+        if (texto.includes("SUCCESS")) {
+            alert("¡Proyecto #" + id + " Autorizado con éxito!");
+            // IMPORTANTE: Desbloquear antes de recargar
+            document.getElementById('select_cliente').disabled = false;
+            document.getElementById('select_worker').disabled = false;
+            location.reload(); 
         } else {
-            alert("❌ " + result);
+            alert("Error del servidor: " + texto);
             btn.disabled = false;
-            btn.innerHTML = originalText;
+            btn.innerText = "CREAR PROYECTO";
         }
-    } catch (e) { alert("Error de conexión"); btn.disabled = false; btn.innerHTML = originalText; }
+
+    } catch(e) {
+        alert("Error de conexión. Revisa el nuevo Script URL.");
+        btn.disabled = false;
+        btn.innerText = "CREAR PROYECTO";
+    }
 }
-    // --- SISTEMA DE NÓMINA (PAYROLL) ---
+
+async function cambiarEstatus(id, nuevoEstatus) {
+    if (nuevoEstatus === 'Active') {
+        // Buscamos la orden en los datos cargados
+        const orden = globalData.rawJobs.find(j => String(j.id) === String(id));
+        
+        if (!orden) {
+            alert("No se encontró la información del proyecto #" + id);
+            return;
+        }
+
+        // 1. Llenamos los campos visibles
+        document.getElementById('id_orden').value = orden.id;
+        document.getElementById('direccion').value = orden.direccion || "";
+        document.getElementById('presupuesto').value = ""; // Limpiamos para que el LandLord lo ponga
+
+        // 2. Formateamos las Notas: (F) Servicio - (I) Notas Admin
+        const servicioText = orden.servicio || "N/A";
+        const notasPrevias = orden.notas_admin || "";
+        document.getElementById('notas_admin').value = `(F) ${servicioText} - (I) ${notasPrevias}`;
+
+        // 3. Forzamos la selección del Cliente en el select
+        const selectCliente = document.getElementById('select_cliente');
+        selectCliente.innerHTML = `<option value="${orden.cliente}" selected>${orden.cliente}</option>`;
+        selectCliente.disabled = true; // Bloqueado para seguridad
+
+        // 4. Forzamos a Jorge Pantoja como Staff predeterminado
+        const selectWorker = document.getElementById('select_worker');
+        selectWorker.innerHTML = `<option value="Jorge Pantoja" selected>Jorge Pantoja</option>`;
+        selectWorker.disabled = true;
+
+        // 5. Buscamos el email de Jorge en la lista de usuarios global
+        const staffObj = globalData.users.find(u => u.name.includes("Jorge Pantoja"));
+        if (staffObj) {
+            document.getElementById('h_email_worker').value = staffObj.email;
+        } else {
+            // Backup por si no lo encuentra en la lista
+            document.getElementById('h_email_worker').value = "jorgepantoja@example.com"; 
+        }
+
+        // 6. Llenamos datos ocultos del cliente
+        document.getElementById('h_email_cliente').value = orden.email_cliente || "";
+        document.getElementById('h_servicio_cliente').value = orden.servicio || "";
+
+        // 7. UI: Scroll al inicio y cambiar texto del botón
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        const btnCrear = document.querySelector("button[onclick='guardarOrden()']");
+        if(btnCrear) {
+            btnCrear.innerText = "CONFIRMAR AUTORIZACIÓN ✅";
+            btnCrear.style.backgroundColor = "#10b981"; // Cambia a verde para indicar acción positiva
+        }
+
+        setTimeout(() => document.getElementById('presupuesto').focus(), 500);
+        
+    } else if (nuevoEstatus === 'Done') {
+        if(!confirm(`¿Deseas marcar la orden #${id} como finalizada?`)) return;
+        try {
+            const res = await fetch(`${URL_SCRIPT}?action=cambiar_estatus&id=${id}&nuevo=Done`);
+            const texto = await res.text();
+            if(texto.includes("SUCCESS")) {
+                alert("Orden #" + id + " finalizada correctamente.");
+                cargarTabla();
+            }
+        } catch(e) { alert("Error de conexión al finalizar."); }
+    }
+}
+
 async function ejecutarImpresionNomina() {
     const worker = document.getElementById('pay_select_worker').value;
     const start = document.getElementById('pay_start_date').value;
     const end = document.getElementById('pay_end_date').value;
-    const btn = event.currentTarget;
-
-    if (!start || !end) return alert("Selecciona fechas");
-
-    btn.disabled = true;
-    btn.innerHTML = 'GENERANDO...';
-
+    if(!start || !end) return alert("Fechas obligatorias");
     try {
-        const url = `${URL_SCRIPT}?action=get_payroll&worker=${encodeURIComponent(worker)}&start=${start}&end=${end}&compania=${encodeURIComponent(session.compania)}`;
-        const res = await fetch(url);
+        const res = await fetch(`${URL_SCRIPT}?action=get_payroll&worker=${encodeURIComponent(worker)}&start=${start}&end=${end}&compania=${encodeURIComponent(session.compania)}`);
         const data = await res.json();
-
-        if (!data || data.length === 0) {
-            alert("No hay registros.");
-            btn.disabled = false;
-            btn.innerHTML = "GENERAR NÓMINA";
-            return;
-        }
-
-        generarReciboHTML(data, worker, start, end);
-    } catch (e) {
-        console.error(e);
-        alert("Error de nómina");
-        btn.disabled = false;
-        btn.innerHTML = "GENERAR NÓMINA";
-    }
+        let total = 0;
+        let html = `<h1>Payroll: ${worker}</h1><table border="1" style="width:100%"><tr><th>Fecha</th><th>ID</th><th>Horas</th></tr>`;
+        data.forEach(r => { total += parseFloat(r.horas); html += `<tr><td>${r.fecha}</td><td>${r.id_orden}</td><td>${r.horas}h</td></tr>`; });
+        html += `</table><h3>Total: ${total.toFixed(2)}h</h3>`;
+        const win = window.open('', '_blank');
+        win.document.write(html); win.print();
+    } catch(e) { alert("Error al generar"); }
 }
 
-function generarReciboHTML(datos, worker, start, end) {
-    const area = document.getElementById('receipt-area') || document.body;
-    const ventImpresion = window.open('', '_blank');
+async function initMasterTools() {
+    // Protección extra: si no es de los roles permitidos, no hace nada
+    if (!["Master", "Supervisor", "Admin"].includes(session.rol)) return;
+
+    const res = await fetch(`${URL_SCRIPT}?action=get_companies`);
+    const companies = await res.json();
+    companies.forEach(c => masterCompanyData[c.nombre] = c);
     
-    let totalGeneral = 0;
-    const filas = datos.map(r => {
-        totalGeneral += parseFloat(r.horas || 0);
-        return `<tr><td>${r.fecha}</td><td>#${r.id_orden} - ${r.cliente}</td><td>${r.horas}h</td></tr>`;
-    }).join("");
-
-    ventImpresion.document.write(`
-        <html>
-        <head><title>Payroll - ${worker}</title>
-        <style>
-            body { font-family: sans-serif; padding: 20px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            .total { font-weight: bold; font-size: 1.2em; margin-top: 20px; }
-        </style>
-        </head>
-        <body>
-            <h1>Recibo de Pago</h1>
-            <p>Trabajador: ${worker}</p>
-            <p>Periodo: ${start} al ${end}</p>
-            <table>
-                <thead><tr><th>Fecha</th><th>Proyecto</th><th>Horas</th></tr></thead>
-                <tbody>${filas}</tbody>
-            </table>
-            <p class="total">Total de Horas: ${totalGeneral.toFixed(2)}h</p>
-            <p>Empresa: ${session.compania}</p>
-        </body>
-        </html>
-    `);
-    ventImpresion.document.close();
-    ventImpresion.print();
+    const header = document.querySelector('header');
     
-    const btn = document.querySelector('button[onclick="ejecutarImpresionNomina()"]');
-    if(btn) { btn.disabled = false; btn.innerHTML = "GENERAR NÓMINA"; }
+    // Si ya existe el switcher, no lo duplicamos
+    if (document.getElementById('master_switcher')) return;
+
+    const select = `
+        <div id="master_switcher" style="margin-top: 10px;">
+            <select onchange="switchCompany(this.value)" style="padding: 5px; border-radius: 5px; background: #1e293b; color: white; border: 1px solid var(--primary);">
+                <option value="${session.compania}">-- Mi Empresa --</option>
+                ${session.rol === "Master" ? '<option value="TODAS">-- TODAS --</option>' : ''}
+                ${companies.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join("")}
+            </select>
+        </div>`;
+    header.insertAdjacentHTML('beforeend', select);
+}
+async function cargarConfiguracionEmpresaIndividual() {
+    const res = await fetch(`${URL_SCRIPT}?action=get_companies`);
+    (await res.json()).forEach(c => masterCompanyData[c.nombre] = c);
 }
 
-async function cambiarEstatus(idOrden) {
-    if (!confirm(`¿Cerrar orden #${idOrden}?`)) return;
-    try {
-        const res = await fetch(`${URL_SCRIPT}?action=cambiar_estatus&id=${idOrden}`);
-        const data = await res.json();
-        if (data.success) {
-            alert("✅ Finalizada.");
-            cargarTabla();
-        }
-    } catch (e) { alert("Error"); }
-}
-
-function logout() {
-    localStorage.clear();
-    location.reload();
-}
-
-function cerrarModales() { 
-    document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); 
-}
-    // Abre el modal y prepara los datos
-function prepararAddStaff(orderId) {
-    document.getElementById('modal_order_id').value = orderId;
-    
-    // Llenamos el select del modal con los usuarios que ya tenemos cargados
-    const select = document.getElementById('modal_select_worker');
-    if (globalData.users.length === 0) {
-        select.innerHTML = '<option>Cargando staff...</option>';
-    } else {
-        select.innerHTML = '<option value="">-- Seleccionar Refuerzo --</option>' + 
-            globalData.users.map(u => `<option value="${u.name}" data-email="${u.email}">${u.name}</option>`).join('');
-    }
-    
+function prepararAddStaff(id) {
+    document.getElementById('modal_order_id').value = id;
+    document.getElementById('modal_select_worker').innerHTML = globalData.users.map(u => `<option value="${u.name}" data-email="${u.email}">${u.name}</option>`).join('');
     document.getElementById('modalWorker').style.display = 'flex';
 }
 
-// Envía la orden al servidor
 async function confirmarNuevoStaff() {
-    const orderId = document.getElementById('modal_order_id').value;
-    const select = document.getElementById('modal_select_worker');
-    const workerName = select.value;
-    const workerEmail = select.options[select.selectedIndex]?.getAttribute('data-email');
-
-    if (!workerName) return alert("Por favor, selecciona un trabajador.");
-
-    const btn = event.currentTarget;
-    btn.disabled = true;
-    btn.innerHTML = "ASIGNANDO...";
-
-    try {
-        const res = await fetch(URL_SCRIPT, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: 'ADD_STAFF',
-                id: orderId,
-                asignado_a: workerName,
-                email_trabajador: workerEmail,
-                compania: session.compania
-            })
-        });
-        
-        const result = await res.text();
-        if (result.includes("SUCCESS")) {
-            alert("✅ Refuerzo asignado correctamente.");
-            cerrarModales();
-            cargarTabla(); // Recargamos la tabla para ver al nuevo trabajador
-        } else {
-            alert("Error: " + result);
-        }
-    } catch (e) {
-        console.error("Error:", e);
-        alert("Error de conexión al asignar staff.");
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = "ASIGNAR";
-    }
+    const sel = document.getElementById('modal_select_worker');
+    const payload = {
+        action: 'ADD_STAFF',
+        id: document.getElementById('modal_order_id').value,
+        asignado_a: sel.value,
+        email_trabajador: sel.options[sel.selectedIndex].dataset.email,
+        compania: session.compania
+    };
+    await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+    cerrarModales(); cargarTabla();
 }
 
-// --- FINAL DEL SCRIPT ---
-console.log("Sistema Pantoja cargado correctamente.");
+function cerrarModales() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
+function logout() { localStorage.clear(); location.reload(); }
 </script>
 </body>
 </html>
