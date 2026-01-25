@@ -206,7 +206,7 @@
     </div>
 
 <script>
-const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwnnirTYDK7DwsFyVFJyBQ061AB9Zb-GzoZw-D21_krRA9bHiNxRhBFv4ndHcTD3Dhe/exec"; 
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxT2tvV-3sFLohwUm28DLLCvU9siuKh731gEoC7ivZzXkcksgdkwlLA9BjXBWKcW43V/exec"; 
 let globalData = { clients: [], users: [], rawJobs: [] };
 let timerRef = 15;
 let session = null;
@@ -323,6 +323,7 @@ async function cargarTabla() {
         const trabajos = await res.json();
         globalData.rawJobs = trabajos;
 
+        // 1. Dashboard de conteo (esto lo dejamos igual)
         const dashboard = document.getElementById("dashboard_conteo");
         if (dashboard && trabajos.length > 0) {
             const conteos = trabajos.reduce((acc, c) => { 
@@ -336,10 +337,12 @@ async function cargarTabla() {
                 </div>`).join("");
         }
 
+        // 2. AGRUPACIÓN: Aquí es donde permitimos múltiples trabajadores por proyecto
         const agrupados = trabajos.reduce((acc, curr) => {
             if (!acc[curr.id]) {
                 acc[curr.id] = { 
-                    id: curr.id, cliente: curr.cliente, presupuesto: curr.presupuesto, equipo: {}, 
+                    id: curr.id, cliente: curr.cliente, presupuesto: curr.presupuesto, 
+                    equipo: {}, // Usamos objeto para evitar duplicar al mismo worker en el mismo job
                     compania: curr.compania, direccion: curr.direccion, status: curr.status 
                 };
             }
@@ -368,6 +371,7 @@ async function cargarTabla() {
             
             let direccionParaMapa = (hasIn) ? curr.add_in : curr.direccion;
 
+            // IMPORTANTE: Guardamos al trabajador usando su NOMBRE como llave
             acc[curr.id].equipo[curr.asignado_a] = { 
                 nombre: curr.asignado_a, 
                 horas: curr.horas_acumuladas || 0, 
@@ -379,30 +383,31 @@ async function cargarTabla() {
             return acc;
         }, {});
 
+        // 3. RENDERIZADO: Dibujar la tabla
         const tabla = document.getElementById("lista_trabajos");
         tabla.innerHTML = Object.values(agrupados).map(t => {
-            let botonAccion = "";
-            if (t.status === "ON APPROVAL") {
-                if (["Admin", "Master"].includes(session.rol)) {
-                    botonAccion = `<button class="auth-btn" onclick="cambiarEstatus('${t.id}', 'Active')">AUTHORIZE</button>`;
-                } else {
-                    botonAccion = `<span style="color:var(--warning); font-size:10px; font-weight:bold;">AWAITING...</span>`;
-                }
-            } else {
-                botonAccion = `<button class="done-btn" onclick="cambiarEstatus('${t.id}', 'Done')">DONE</button>`;
-            }
+            let botonAccion = (t.status === "ON APPROVAL") 
+                ? (["Admin", "Master"].includes(session.rol) 
+                    ? `<button class="auth-btn" onclick="cambiarEstatus('${t.id}', 'Active')">AUTHORIZE</button>` 
+                    : `<span style="color:var(--warning); font-size:10px; font-weight:bold;">AWAITING...</span>`)
+                : `<button class="done-btn" onclick="cambiarEstatus('${t.id}', 'Done')">DONE</button>`;
 
             const precioDisplay = (session.rol === "Master" || session.rol === "Admin") ? `$${t.presupuesto}` : "---";
 
+            // Convertimos el objeto equipo en un array para hacer el .map() de los botones
+            const fichasEquipo = Object.values(t.equipo).map(e => `
+                <div class="staff-tag ${e.clase}" style="${e.estilo}; cursor:pointer;" onclick="window.open('${e.mapa}', '_blank')">
+                    ${e.nombre}<br><small>${e.label} | ${e.horas}h</small>
+                </div>`).join("");
+
             return `<tr>
                 <td><b>#${t.id}</b><br><span style="font-size:10px; color:var(--primary)">${t.compania}</span><br>${t.cliente}</td>
-                <td><div style="display:flex; flex-wrap:wrap; gap:5px;">
-                        ${Object.values(t.equipo).map(e => `
-                            <div class="staff-tag ${e.clase}" style="${e.estilo}; cursor:pointer;" onclick="window.open('${e.mapa}', '_blank')">
-                                ${e.nombre}<br><small>${e.label} | ${e.horas}h</small>
-                            </div>`).join("")}
+                <td>
+                    <div style="display:flex; flex-wrap:wrap; gap:5px;">
+                        ${fichasEquipo}
                         <button class="add-btn" onclick="prepararAddStaff('${t.id}')">+</button>
-                    </div></td>
+                    </div>
+                </td>
                 <td style="font-weight:bold; color:var(--accent)">${precioDisplay}</td>
                 <td>${botonAccion}</td>
             </tr>`;
@@ -433,77 +438,104 @@ async function cargarConfiguracion() {
     } catch(e) { console.error("Error cargando dropdowns:", e); }
 }
 
-// NUEVA FUNCIÓN UNIFICADA DE NÓMINA
 async function llamarNomina(esMasivo) {
     const start = document.getElementById('pay_start_date').value;
     const end = document.getElementById('pay_end_date').value;
     const workerName = document.getElementById('pay_select_worker').value;
+    const compania = session.compania;
 
-    if (!start || !end) return alert("Selecciona el rango de fechas");
+    if (!start || !end) return alert("Faltan fechas");
 
     let emailBusqueda = "all";
     if (!esMasivo) {
         if (!workerName) return alert("Selecciona un trabajador");
         const staffObj = globalData.users.find(u => u.name === workerName);
-        if (!staffObj) return alert("Email no encontrado");
-        emailBusqueda = staffObj.email;
+        emailBusqueda = staffObj ? staffObj.email : "NOT_FOUND";
     }
 
+    // CUADRO DE DIAGNÓSTICO (Para que veas qué se envía)
+    console.log(`Enviando: Inicio:${start}, Fin:${end}, Email:${emailBusqueda}, Comp:${compania}`);
+
     try {
-        const url = `${URL_SCRIPT}?action=get_payroll&workerEmail=${encodeURIComponent(emailBusqueda)}&start=${start}&end=${end}&compania=${encodeURIComponent(session.compania)}`;
+        const url = `${URL_SCRIPT}?action=get_payroll&workerEmail=${encodeURIComponent(emailBusqueda)}&start=${start}&end=${end}&compania=${encodeURIComponent(compania)}&t=${Date.now()}`;
         const res = await fetch(url);
         const result = await res.json();
         const logs = result.logs || [];
 
-        if (logs.length === 0) return alert("No hay registros en este periodo.");
+        if (logs.length === 0) {
+            // MENSAJE DETALLADO DE ERROR
+            return alert(`SIN DATOS ENCONTRADOS:
+--------------------------------
+• Empresa: ${compania}
+• Desde: ${start}
+• Hasta: ${end}
+• Trabajador: ${esMasivo ? 'TODOS' : workerName} (${emailBusqueda})
+--------------------------------
+Verifica que en Labor_Log existan filas con estos datos exactos.`);
+        }
 
-        const grupos = logs.reduce((acc, curr) => {
-            if (!acc[curr.nombre]) acc[curr.nombre] = [];
-            acc[curr.nombre].push(curr);
-            return acc;
-        }, {});
-
-        imprimirRecibosFinal(grupos, start, end);
-    } catch (e) { alert("Error de conexión"); }
+        imprimirRecibosFinal(logs, start, end);
+    } catch (e) { 
+        alert("Error de conexión: " + e.message); 
+    }
 }
 
-function imprimirRecibosFinal(grupos, start, end) {
-    let html = `<html><head><style>
-        body { font-family: sans-serif; padding:20px; }
-        .hoja { page-break-after: always; border-bottom: 2px dashed #ccc; padding-bottom: 30px; margin-bottom: 30px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-        .total-box { text-align: right; margin-top: 15px; font-size: 1.2rem; font-weight: bold; color: green; }
+function imprimirRecibosFinal(datosAgrupados, start, end) {
+    let html = `<html><head><title>Payroll_${session.compania}</title><style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding:20px; color: #333; }
+        .hoja { page-break-after: always; border: 1px solid #eee; padding: 25px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1 { color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background-color: #f8fafc; color: #475569; font-weight: 600; }
+        th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: center; }
+        .total-box { text-align: right; margin-top: 20px; font-size: 1.3rem; font-weight: bold; background: #f0fdf4; padding: 15px; border-radius: 5px; color: #166534; border: 1px solid #bbf7d0; }
+        .info-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
     </style></head><body>`;
 
-    for (const [nombre, datos] of Object.entries(grupos)) {
-        let tH = 0, tP = 0;
-        const rate = datos[0].rate || 0;
-
-        const filas = datos.map(l => {
-            const sub = l.horas * rate;
-            tH += l.horas; tP += sub;
-            return `<tr><td>${l.fecha}</td><td>${l.id_orden}</td><td>${l.horas.toFixed(2)}h</td><td>$${sub.toFixed(2)}</td></tr>`;
-        }).join('');
+    datosAgrupados.forEach(u => {
+        const filas = u.detalle.map(d => `
+            <tr>
+                <td><b>${d.id_orden}</b></td>
+                <td>${d.horas} hrs</td>
+                <td>$${u.rate}/hr</td>
+                <td>$${d.pago}</td>
+            </tr>`).join('');
 
         html += `
         <div class="hoja">
-            <h1>Recibo de Pago</h1>
-            <p><b>Trabajador:</b> ${nombre} | <b>Compañía:</b> ${session.compania}</p>
-            <p><b>Periodo:</b> ${start} al ${end} | <b>Rate:</b> $${rate}/hr</p>
+            <h1>PAYROLL RECEIPT</h1>
+            <div class="info-header">
+                <div>
+                    <p><b>Worker:</b> ${u.trabajador}</p>
+                    <p><b>Company:</b> ${session.compania}</p>
+                </div>
+                <div style="text-align:right">
+                    <p><b>Period:</b> ${start} to ${end}</p>
+                    <p><b>Email:</b> ${u.email}</p>
+                </div>
+            </div>
             <table>
-                <thead><tr><th>Fecha</th><th>Orden #</th><th>Horas (Col I)</th><th>Subtotal</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Total Hours</th>
+                        <th>Rate</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
                 <tbody>${filas}</tbody>
             </table>
-            <div class="total-box">Total Horas: ${tH.toFixed(2)}h | Total a Pagar: $${tP.toFixed(2)}</div>
+            <div class="total-box">
+                Total Hours: ${u.total_horas}h | Total to Pay: $${u.total_pagar}
+            </div>
         </div>`;
-    }
+    });
 
     html += `</body></html>`;
     const win = window.open('', '_blank');
     win.document.write(html);
     win.document.close();
-    setTimeout(() => win.print(), 500);
+    setTimeout(() => win.print(), 800);
 }
 
 function autoFillCliente() {
@@ -622,15 +654,40 @@ function prepararAddStaff(id) {
 
 async function confirmarNuevoStaff() {
     const sel = document.getElementById('modal_select_worker');
+    const workerName = sel.value;
+    const workerEmail = sel.options[sel.selectedIndex].dataset.email;
+    const orderId = document.getElementById('modal_order_id').value;
+
+    if (!workerName) return alert("Selecciona un trabajador");
+
     const payload = {
         action: 'ADD_STAFF',
-        id: document.getElementById('modal_order_id').value,
-        asignado_a: sel.value,
-        email_trabajador: sel.options[sel.selectedIndex].dataset.email,
+        id: orderId,
+        asignado_a: workerName,
+        email_trabajador: workerEmail,
         compania: session.compania
     };
-    await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-    cerrarModales(); cargarTabla();
+
+    try {
+        const res = await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            body: JSON.stringify(payload) 
+        });
+        const texto = await res.text();
+
+        if (texto.includes("SUCCESS")) {
+            cerrarModales();
+            // Refrescamos los datos para que aparezca la nueva ficha
+            await cargarTabla(); 
+            alert(`${workerName} añadido al proyecto #${orderId}`);
+        } else if (texto.includes("YA ASIGNADO")) {
+            alert("Este trabajador ya está asignado a este proyecto.");
+        } else {
+            alert("Error: " + texto);
+        }
+    } catch (e) {
+        alert("Error de conexión al agregar staff");
+    }
 }
 
 function cerrarModales() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
