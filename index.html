@@ -206,7 +206,7 @@
     </div>
 
 <script>
-const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwFV-vP_oEV_HrdawulQDBQNOxIxBNbXp0fYzhfynUd7keN-ApXzg-yGMxYam9uRbc7/exec"; 
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzjzOfRAj-oT9VNfp1y7IMEstUHX0fZYT_qDWIPRa04g1NzkJCrvunDlVRDQIf9X5rS/exec"; 
 let globalData = { clients: [], users: [], rawJobs: [] };
 let timerRef = 15;
 let session = null;
@@ -323,68 +323,69 @@ async function cargarTabla() {
         const trabajos = await res.json();
         globalData.rawJobs = trabajos;
 
-        // 1. Dashboard de conteo (esto lo dejamos igual)
-        const dashboard = document.getElementById("dashboard_conteo");
-        if (dashboard && trabajos.length > 0) {
-            const conteos = trabajos.reduce((acc, c) => { 
-                acc[c.compania] = (acc[c.compania] || 0) + 1; 
-                return acc; 
-            }, {});
-            dashboard.innerHTML = Object.entries(conteos).map(([comp, cant]) => `
-                <div onclick="switchCompany('${comp}')" style="cursor:pointer; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; border:1px solid var(--primary);">
-                    <div style="font-size:10px;">${comp}</div>
-                    <div style="font-weight:bold;">${cant} Jobs</div>
-                </div>`).join("");
-        }
-
-        // 2. AGRUPACIÓN: Aquí es donde permitimos múltiples trabajadores por proyecto
         const agrupados = trabajos.reduce((acc, curr) => {
             if (!acc[curr.id]) {
                 acc[curr.id] = { 
                     id: curr.id, cliente: curr.cliente, presupuesto: curr.presupuesto, 
-                    equipo: {}, // Usamos objeto para evitar duplicar al mismo worker en el mismo job
-                    compania: curr.compania, direccion: curr.direccion, status: curr.status 
+                    equipo: {}, compania: curr.compania, direccion: curr.direccion, status: curr.status 
                 };
             }
 
+            let color = "#374151"; // Gris default
+            let txt = "OFF";
+            let anim = "";
+            let linkMapa = "#";
+
+            const tieneJ = curr.log_add_in && String(curr.log_add_in).trim() !== "";
+            const tieneL = curr.log_add_out && String(curr.log_add_out).trim() !== "";
+            
             const cleanDist = (val) => {
-                if (!val || val === "undefined") return null;
+                if (val === null || val === undefined || val === "") return null;
                 let m = String(val).match(/[\d.]+/);
                 return m ? parseFloat(m[0]) : null;
             };
 
-            let dIn = cleanDist(curr.gps_in_dist);
-            let hasIn = curr.add_in && curr.add_in.length > 2;
-            let hasOut = curr.add_out && curr.add_out.length > 2;
-            let color = "#374151"; let txt = "No Log"; let anim = "";
-            
-            if (hasIn) {
-                if (hasOut) { 
-                    color = (dIn <= 0.2) ? "#2563eb" : "#f97316"; 
-                    txt = "DONE"; 
-                } else { 
-                    color = (dIn <= 0.2) ? "#10b981" : "#ef4444"; 
-                    txt = (dIn <= 0.2) ? "IN-SITE" : "OUT-SITE"; 
-                    if(dIn > 0.2) anim = "alerta-roja"; 
+            const kDist = cleanDist(curr.log_dist_in);
+            const mDist = cleanDist(curr.log_dist_out);
+
+            // REGLA: SI TIENE (J) PERO NO (L) -> ESTÁ TRABAJANDO
+            if (tieneJ && !tieneL) {
+                linkMapa = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(curr.log_add_in)}`;
+                if (kDist !== null && kDist > 0.2) {
+                    color = "#ef4444"; // ROJO
+                    txt = `OUT (${kDist}mi)`;
+                    anim = "alerta-roja";
+                } else {
+                    color = "#10b981"; // VERDE
+                    txt = `IN (${kDist || 0}mi)`;
+                }
+            } 
+            // REGLA: SI TIENE (J) Y TIENE (L) -> YA SALIÓ
+            else if (tieneJ && tieneL) {
+                linkMapa = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(curr.log_add_out)}`;
+                if (mDist !== null && mDist > 0.2) {
+                    color = "#f97316"; // NARANJA
+                    txt = `DONE-AWAY (${mDist}mi)`;
+                } else {
+                    color = "#2563eb"; // AZUL
+                    txt = "DONE";
                 }
             }
-            
-            let direccionParaMapa = (hasIn) ? curr.add_in : curr.direccion;
 
-            // IMPORTANTE: Guardamos al trabajador usando su NOMBRE como llave
             acc[curr.id].equipo[curr.asignado_a] = { 
                 nombre: curr.asignado_a, 
                 horas: curr.horas_acumuladas || 0, 
-                estilo: `background-color: ${color};`, 
+                estilo: `background-color: ${color} !important;`, 
                 clase: anim, 
-                label: `${txt} (${dIn ?? '?'})`, 
-                mapa: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionParaMapa)}`
+                label: txt,
+                mapa: linkMapa
             }; 
             return acc;
         }, {});
 
-        // 3. RENDERIZADO: Dibujar la tabla
         const tabla = document.getElementById("lista_trabajos");
+        if (!tabla) return;
+
         tabla.innerHTML = Object.values(agrupados).map(t => {
             let botonAccion = (t.status === "ON APPROVAL") 
                 ? (["Admin", "Master"].includes(session.rol) 
@@ -394,24 +395,27 @@ async function cargarTabla() {
 
             const precioDisplay = (session.rol === "Master" || session.rol === "Admin") ? `$${t.presupuesto}` : "---";
 
-            // Convertimos el objeto equipo en un array para hacer el .map() de los botones
             const fichasEquipo = Object.values(t.equipo).map(e => `
-                <div class="staff-tag ${e.clase}" style="${e.estilo}; cursor:pointer;" onclick="window.open('${e.mapa}', '_blank')">
-                    ${e.nombre}<br><small>${e.label} | ${e.horas}h</small>
+                <div class="staff-tag ${e.clase}" 
+                     style="${e.estilo} cursor:pointer; color:white; padding:8px; border-radius:8px; margin:2px; min-width:95px; display:inline-block; text-align:center;" 
+                     onclick="window.open('${e.mapa}', '_blank')">
+                    <b style="font-size:11px;">${e.nombre}</b><br>
+                    <small style="font-size:9px;">${e.label} | ${e.horas}h</small>
                 </div>`).join("");
 
             return `<tr>
-                <td><b>#${t.id}</b><br><span style="font-size:10px; color:var(--primary)">${t.compania}</span><br>${t.cliente}</td>
-                <td>
-                    <div style="display:flex; flex-wrap:wrap; gap:5px;">
+                <td style="padding:10px;"><b>#${t.id}</b><br><span style="font-size:10px; color:var(--primary)">${t.compania}</span><br>${t.cliente}</td>
+                <td style="padding:10px;">
+                    <div style="display:flex; flex-wrap:wrap; gap:5px; align-items:center;">
                         ${fichasEquipo}
-                        <button class="add-btn" onclick="prepararAddStaff('${t.id}')">+</button>
+                        <button class="add-btn" style="width:30px; height:30px; border-radius:50%;" onclick="prepararAddStaff('${t.id}')">+</button>
                     </div>
                 </td>
-                <td style="font-weight:bold; color:var(--accent)">${precioDisplay}</td>
-                <td>${botonAccion}</td>
+                <td style="font-weight:bold; color:var(--accent); text-align:center;">${precioDisplay}</td>
+                <td style="text-align:center;">${botonAccion}</td>
             </tr>`;
         }).join("");
+
     } catch (e) { console.error("Error en cargarTabla:", e); }
 }
 
