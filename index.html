@@ -206,7 +206,7 @@
     </div>
 
 <script>
-const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzjzOfRAj-oT9VNfp1y7IMEstUHX0fZYT_qDWIPRa04g1NzkJCrvunDlVRDQIf9X5rS/exec"; 
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbyS8ti1Ok1LAKGxNBK4MNeseS3RV0jMQf2TTzzjbIOPNKkcoeePpcPWrvzp7ai1GEI/exec"; 
 let globalData = { clients: [], users: [], rawJobs: [] };
 let timerRef = 15;
 let session = null;
@@ -217,19 +217,32 @@ window.onload = async () => {
     if (saved) {
         session = JSON.parse(saved);
         if (session && session.success) {
+            // 1. Configurar la empresa inmediatamente en memoria
+            await cargarConfiguracionEmpresaIndividual();
+            
+            // 2. Aplicar el tema y nombre ANTES de mostrar nada
+            aplicarTemaEmpresa(session.compania);
+            const txtEmpresa = document.getElementById('nombre_empresa_dinamico');
+            if(txtEmpresa) txtEmpresa.innerText = session.compania;
+
+            // 3. Cambiar vistas
             document.getElementById('view_login').classList.add('hidden');
             document.getElementById('view_main').classList.remove('hidden');
             
-            await cargarConfiguracionEmpresaIndividual(); 
-            
-            if (["Master", "Supervisor", "Admin", "LandLord", "Trabajador"].includes(session.rol)) {
+            // 4. Mostrar el cuerpo de la página ya "tuneado"
+            document.body.classList.add('visible-ready');
+
+            if (["Master", "Supervisor", "Admin", "LandLord"].includes(session.rol)) {
                 await initMasterTools();
             }
             
             document.getElementById('txt_bienvenida').innerText = `${session.rol}: ${session.name}`;
-            switchCompany(session.compania);
             initDashboard();
+        } else {
+            document.body.classList.add('visible-ready'); // Mostrar login si no hay sesión
         }
+    } else {
+        document.body.classList.add('visible-ready');
     }
 };
 
@@ -262,12 +275,14 @@ async function handleLogin() {
         const data = await res.json();
         
         if (data.success) {
+            // Si el servidor dijo que sí, guardamos y entramos
             data.original_compania = data.compania;
             localStorage.setItem('panto_session', JSON.stringify(data));
             location.reload(); 
         } else {
+            // Aquí se mostrará el mensaje de "ACCESO DENEGADO" si es un Worker
             msg.innerText = data.msg || "Usuario o contraseña incorrectos";
-            msg.style.color = "var(--danger)";
+            msg.style.color = "#ff4444"; // Rojo de alerta
         }
     } catch(e) { 
         console.error("Error de Login:", e);
@@ -326,50 +341,41 @@ async function cargarTabla() {
         const agrupados = trabajos.reduce((acc, curr) => {
             if (!acc[curr.id]) {
                 acc[curr.id] = { 
-                    id: curr.id, cliente: curr.cliente, presupuesto: curr.presupuesto, 
-                    equipo: {}, compania: curr.compania, direccion: curr.direccion, status: curr.status 
+                    id: curr.id, 
+                    cliente: curr.cliente, 
+                    presupuesto: curr.presupuesto, 
+                    equipo: {}, 
+                    compania: curr.compania, 
+                    direccion: curr.direccion, 
+                    status: curr.status, 
+                    notas: curr.notas_admin, 
+                    fecha: curr.fecha_creacion, // Viene de la Columna Q vía GS
+                    costoLabor: curr.total_labor_cost || 0 
                 };
             }
-
-            let color = "#374151"; // Gris default
-            let txt = "OFF";
-            let anim = "";
-            let linkMapa = "#";
-
+            
+            // Lógica de GPS y Colores
+            let color = "#374151"; let txt = "OFF"; let anim = ""; let linkMapa = "#";
             const tieneJ = curr.log_add_in && String(curr.log_add_in).trim() !== "";
             const tieneL = curr.log_add_out && String(curr.log_add_out).trim() !== "";
             
-            const cleanDist = (val) => {
-                if (val === null || val === undefined || val === "") return null;
-                let m = String(val).match(/[\d.]+/);
-                return m ? parseFloat(m[0]) : null;
+            const cleanDist = (v) => { 
+                if(!v) return null; 
+                let m = String(v).match(/[\d.]+/); 
+                return m ? parseFloat(m[0]) : null; 
             };
-
-            const kDist = cleanDist(curr.log_dist_in);
+            
+            const kDist = cleanDist(curr.log_dist_in); 
             const mDist = cleanDist(curr.log_dist_out);
 
-            // REGLA: SI TIENE (J) PERO NO (L) -> ESTÁ TRABAJANDO
             if (tieneJ && !tieneL) {
                 linkMapa = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(curr.log_add_in)}`;
-                if (kDist !== null && kDist > 0.2) {
-                    color = "#ef4444"; // ROJO
-                    txt = `OUT (${kDist}mi)`;
-                    anim = "alerta-roja";
-                } else {
-                    color = "#10b981"; // VERDE
-                    txt = `IN (${kDist || 0}mi)`;
-                }
-            } 
-            // REGLA: SI TIENE (J) Y TIENE (L) -> YA SALIÓ
-            else if (tieneJ && tieneL) {
+                if (kDist > 0.2) { color = "#ef4444"; txt = `OUT (${kDist}mi)`; anim = "alerta-roja"; }
+                else { color = "#10b981"; txt = `IN (${kDist || 0}mi)`; }
+            } else if (tieneJ && tieneL) {
                 linkMapa = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(curr.log_add_out)}`;
-                if (mDist !== null && mDist > 0.2) {
-                    color = "#f97316"; // NARANJA
-                    txt = `DONE-AWAY (${mDist}mi)`;
-                } else {
-                    color = "#2563eb"; // AZUL
-                    txt = "DONE";
-                }
+                color = mDist > 0.2 ? "#f97316" : "#2563eb";
+                txt = mDist > 0.2 ? `DONE-AWAY (${mDist}mi)` : "DONE";
             }
 
             acc[curr.id].equipo[curr.asignado_a] = { 
@@ -377,7 +383,7 @@ async function cargarTabla() {
                 horas: curr.horas_acumuladas || 0, 
                 estilo: `background-color: ${color} !important;`, 
                 clase: anim, 
-                label: txt,
+                label: txt, 
                 mapa: linkMapa
             }; 
             return acc;
@@ -387,36 +393,63 @@ async function cargarTabla() {
         if (!tabla) return;
 
         tabla.innerHTML = Object.values(agrupados).map(t => {
+            // Botón de Acción según Estatus
             let botonAccion = (t.status === "ON APPROVAL") 
                 ? (["Admin", "Master"].includes(session.rol) 
                     ? `<button class="auth-btn" onclick="cambiarEstatus('${t.id}', 'Active')">AUTHORIZE</button>` 
                     : `<span style="color:var(--warning); font-size:10px; font-weight:bold;">AWAITING...</span>`)
                 : `<button class="done-btn" onclick="cambiarEstatus('${t.id}', 'Done')">DONE</button>`;
 
-            const precioDisplay = (session.rol === "Master" || session.rol === "Admin") ? `$${t.presupuesto}` : "---";
+            // Lógica de Finanzas (Solo para Master/Admin)
+            let finanzasHTML = "---";
+            if (session.rol === "Master" || session.rol === "Admin") {
+                const profit = t.presupuesto - t.costoLabor;
+                finanzasHTML = `
+                    <div class="finance-text" style="text-align:right; font-size:11px;">
+                        $${t.presupuesto.toLocaleString()} <small>(B)</small><br>
+                        <span style="color:#f59e0b">$${t.costoLabor.toLocaleString()}</span> <small>(L)</small><br>
+                        <span class="${profit >= 0 ? 'profit-positive' : 'profit-negative'}" style="font-weight:bold; color:${profit >= 0 ? '#10b981' : '#ef4444'}">
+                            $${profit.toFixed(2)}
+                        </span>
+                    </div>`;
+            }
 
             const fichasEquipo = Object.values(t.equipo).map(e => `
                 <div class="staff-tag ${e.clase}" 
-                     style="${e.estilo} cursor:pointer; color:white; padding:8px; border-radius:8px; margin:2px; min-width:95px; display:inline-block; text-align:center;" 
+                     style="${e.estilo} cursor:pointer; color:white; padding:6px; border-radius:6px; margin:2px; display:inline-block; min-width:90px;" 
                      onclick="window.open('${e.mapa}', '_blank')">
-                    <b style="font-size:11px;">${e.nombre}</b><br>
+                    <b style="font-size:10px;">${e.nombre}</b><br>
                     <small style="font-size:9px;">${e.label} | ${e.horas}h</small>
                 </div>`).join("");
 
             return `<tr>
-                <td style="padding:10px;"><b>#${t.id}</b><br><span style="font-size:10px; color:var(--primary)">${t.compania}</span><br>${t.cliente}</td>
+                <td style="padding:10px;">
+                    <button class="btn-id" onclick="verDetalles('${t.id}', '${t.direccion}', \`${t.notas}\`, '${t.fecha}')">#${t.id}</button>
+                    <br><span style="font-size:10px; color:#2563eb; font-weight:bold;">${t.compania}</span><br>
+                    <span style="font-size:12px;">${t.cliente}</span>
+                </td>
                 <td style="padding:10px;">
                     <div style="display:flex; flex-wrap:wrap; gap:5px; align-items:center;">
                         ${fichasEquipo}
-                        <button class="add-btn" style="width:30px; height:30px; border-radius:50%;" onclick="prepararAddStaff('${t.id}')">+</button>
+                        <button class="add-btn" style="width:28px; height:28px; border-radius:50%; border:1px dashed #ccc; background:none; cursor:pointer;" onclick="prepararAddStaff('${t.id}')">+</button>
                     </div>
                 </td>
-                <td style="font-weight:bold; color:var(--accent); text-align:center;">${precioDisplay}</td>
+                <td>${finanzasHTML}</td>
                 <td style="text-align:center;">${botonAccion}</td>
             </tr>`;
         }).join("");
-
     } catch (e) { console.error("Error en cargarTabla:", e); }
+}
+
+    function verDetalles(id, direccion, notas, fecha) {
+    const mensaje = `📋 WORK ORDER: ${id}\n` +
+                    `📅 CREADO: ${fecha || 'Sin fecha registrada'}\n` +
+                    `--------------------------------------\n` +
+                    `📍 DIRECCIÓN:\n${direccion}\n\n` +
+                    `📝 NOTAS ADMIN:\n${notas || 'Sin notas adicionales.'}\n` +
+                    `--------------------------------------\n` +
+                    `Status: ${session.rol} View`;
+    alert(mensaje);
 }
 
 async function cargarConfiguracion() {
@@ -445,37 +478,24 @@ async function cargarConfiguracion() {
 async function llamarNomina(esMasivo) {
     const start = document.getElementById('pay_start_date').value;
     const end = document.getElementById('pay_end_date').value;
-    const workerName = document.getElementById('pay_select_worker').value;
+    const workerName = document.getElementById('pay_select_worker').value; // Este es el nombre (B)
     const compania = session.compania;
 
     if (!start || !end) return alert("Faltan fechas");
 
-    let emailBusqueda = "all";
-    if (!esMasivo) {
-        if (!workerName) return alert("Selecciona un trabajador");
-        const staffObj = globalData.users.find(u => u.name === workerName);
-        emailBusqueda = staffObj ? staffObj.email : "NOT_FOUND";
-    }
-
-    // CUADRO DE DIAGNÓSTICO (Para que veas qué se envía)
-    console.log(`Enviando: Inicio:${start}, Fin:${end}, Email:${emailBusqueda}, Comp:${compania}`);
+    // CAMBIO AQUÍ: Enviamos el nombre directamente o "all"
+    let busqueda = esMasivo ? "all" : workerName;
 
     try {
-        const url = `${URL_SCRIPT}?action=get_payroll&workerEmail=${encodeURIComponent(emailBusqueda)}&start=${start}&end=${end}&compania=${encodeURIComponent(compania)}&t=${Date.now()}`;
+        // Cambiamos el parámetro a 'workerName' para que sea claro
+        const url = `${URL_SCRIPT}?action=get_payroll&workerEmail=${encodeURIComponent(busqueda)}&start=${start}&end=${end}&compania=${encodeURIComponent(compania)}&t=${Date.now()}`;
+        
         const res = await fetch(url);
         const result = await res.json();
         const logs = result.logs || [];
 
         if (logs.length === 0) {
-            // MENSAJE DETALLADO DE ERROR
-            return alert(`SIN DATOS ENCONTRADOS:
---------------------------------
-• Empresa: ${compania}
-• Desde: ${start}
-• Hasta: ${end}
-• Trabajador: ${esMasivo ? 'TODOS' : workerName} (${emailBusqueda})
---------------------------------
-Verifica que en Labor_Log existan filas con estos datos exactos.`);
+            return alert(`SIN DATOS ENCONTRADOS:\n• Empresa: ${compania}\n• Periodo: ${start} al ${end}\n• Filtro: ${busqueda}`);
         }
 
         imprimirRecibosFinal(logs, start, end);
@@ -485,16 +505,29 @@ Verifica que en Labor_Log existan filas con estos datos exactos.`);
 }
 
 function imprimirRecibosFinal(datosAgrupados, start, end) {
+    // Quitamos el visibility:hidden porque en la ventana nueva no sirve de nada
     let html = `<html><head><title>Payroll_${session.compania}</title><style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding:20px; color: #333; }
-        .hoja { page-break-after: always; border: 1px solid #eee; padding: 25px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        h1 { color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background-color: #f8fafc; color: #475569; font-weight: 600; }
-        th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: center; }
-        .total-box { text-align: right; margin-top: 20px; font-size: 1.3rem; font-weight: bold; background: #f0fdf4; padding: 15px; border-radius: 5px; color: #166534; border: 1px solid #bbf7d0; }
-        .info-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
-    </style></head><body>`;
+    body { font-family: 'Segoe UI', sans-serif; padding:20px; color: #333; background: #fff; }
+    
+    .hoja { page-break-after: always; padding: 20px; border-bottom: 1px dashed #ccc; }
+    h1 { color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
+    
+    .info-header { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th { background-color: #f8fafc; color: #475569; font-weight: 600; padding: 12px; border: 1px solid #e2e8f0; }
+    td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; }
+
+    .total-box { 
+        margin-top: 20px; 
+        padding: 15px; 
+        background: #f1f5f9; 
+        text-align: right; 
+        font-weight: bold; 
+        font-size: 16px; 
+        border-radius: 8px;
+    }
+</style></head><body>`;
 
     datosAgrupados.forEach(u => {
         const filas = u.detalle.map(d => `
@@ -536,10 +569,16 @@ function imprimirRecibosFinal(datosAgrupados, start, end) {
     });
 
     html += `</body></html>`;
+    
     const win = window.open('', '_blank');
     win.document.write(html);
     win.document.close();
-    setTimeout(() => win.print(), 800);
+    
+    // Le damos tiempo a que el navegador procese el HTML antes de lanzar el print
+    setTimeout(() => {
+        win.focus();
+        win.print();
+    }, 1000);
 }
 
 function autoFillCliente() {
